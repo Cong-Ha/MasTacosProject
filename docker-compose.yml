@@ -1,0 +1,35 @@
+name: MasTacos
+services:
+  mastacos:
+    image: ${DOCKER_REGISTRY-}mastacos
+    build:
+      context: .
+      dockerfile: MasTacos/Dockerfile
+    container_name: WebAPI
+    depends_on:
+      - db
+    ports:
+      - "8080:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=db;Port=3306;Database=mas_tacos;User=mas_tacos_user;Password=mas_tacos_password;
+
+  db:
+    image: mysql:8.0
+    container_name: MySQL
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_DATABASE=mas_tacos
+      - MYSQL_USER=mas_tacos_user
+      - MYSQL_PASSWORD=mas_tacos_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+      #mount Scripts directory for Mysql to run all scripts in order when first initialized
+      - ./MasTacos/Scripts:/docker-entrypoint-initdb.d
+    command: --default-authentication-plugin=mysql_native_password
+
+volumes:
+  db-data:

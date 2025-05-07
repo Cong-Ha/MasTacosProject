@@ -1,0 +1,6 @@
+@MasTacos_HostAddress = http://localhost:5124
+
+GET {{MasTacos_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
