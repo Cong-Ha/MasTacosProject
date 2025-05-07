@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -12,11 +13,18 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Add DB context
-builder.Services.AddDbContext<MasTacos.Data.MasTacosContext>();
+//builder.Services.AddDbContext<MasTacos.Data.MasTacosContext>();
+builder.Services.AddDbContext<MasTacos.Data.MasTacosContext>(options =>
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
+    ),
+    ServiceLifetime.Scoped  // Explicitly set the lifetime
+);
 
 // Register repositories and services
 builder.Services.AddScoped<MasTacos.Repository.Interfaces.ICustomerRepository, MasTacos.Repository.CustomerRepository>();
-//builder.Services.AddScoped<MasTacos.Repository.Interfaces.IMenuItemRepository, MasTacos.Repository.MenuItemRepository>();
+builder.Services.AddScoped<MasTacos.Repository.Interfaces.IMenuItemRepository, MasTacos.Repository.MenuItemRepository>();
 //builder.Services.AddScoped<MasTacos.Repository.Interfaces.IOrderRepository, MasTacos.Repository.OrderRepository>();
 //builder.Services.AddScoped<MasTacos.Repository.Interfaces.IReservationRepository, MasTacos.Repository.ReservationRepository>();
 //builder.Services.AddScoped<MasTacos.Repository.Interfaces.ISurveyRepository, MasTacos.Repository.SurveyRepository>();
