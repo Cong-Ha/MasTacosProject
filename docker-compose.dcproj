@@ -5,7 +5,7 @@
     <DockerTargetOS>Linux</DockerTargetOS>
     <DockerPublishLocally>False</DockerPublishLocally>
     <ProjectGuid>9f42edfd-0394-4589-84c4-cee54311819b</ProjectGuid>
-	<DockerComposeProjectName>mastacos_container</DockerComposeProjectName>
+    <DockerComposeProjectName>mastacos_container</DockerComposeProjectName>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/swagger</DockerServiceUrl>
     <DockerServiceName>mastacos</DockerServiceName>

@@ -14,6 +14,20 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=db;Port=3306;Database=mas_tacos;User=mas_tacos_user;Password=mas_tacos_password;
 
+  mastacos_ui:
+    build:
+      context: ./mastacos_ui/mastacos_ui
+      dockerfile: Dockerfile
+    container_name: VueApp
+    volumes:
+      - ./mastacos_ui/mastacos_ui:/app
+      - /app/node_modules
+    ports:
+      - "8081:8080"
+    environment:
+      - NODE_ENV=development
+    tty: true
+
   db:
     image: mysql:8.0
     container_name: MySQL
@@ -27,7 +41,6 @@ services:
       - "3306:3306"
     volumes:
       - db-data:/var/lib/mysql
-      #mount Scripts directory for Mysql to run all scripts in order when first initialized
       - ./MasTacos/Scripts:/docker-entrypoint-initdb.d
     command: --default-authentication-plugin=mysql_native_password
 
