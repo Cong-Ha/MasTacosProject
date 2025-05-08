@@ -1,7 +1,25 @@
 ﻿<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.1738743">
-  <PropertyGroup>
-    <!--Command to run on project build-->
-    <!--Command to run on project clean-->
-    <StartupCommand>node </StartupCommand>
-  </PropertyGroup>
+	<PropertyGroup>
+		<!-- Specify the correct working directory -->
+		<WorkingDirectory>mastacos_ui</WorkingDirectory>
+
+		<!-- Commands for build, clean, and startup -->
+		<BuildCommand>npm run build</BuildCommand>
+		<CleanCommand>npm run clean</CleanCommand>
+		<StartupCommand>npm run serve</StartupCommand>
+
+		<!-- Default npm script commands -->
+		<DefaultItemExcludes>$(DefaultItemExcludes);node_modules\**</DefaultItemExcludes>
+		<ShouldRunBuildScript>false</ShouldRunBuildScript>
+
+		<DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
+		<DockerServiceUrl>http://localhost:8081</DockerServiceUrl>
+		<DockerServiceName>mastacos_ui</DockerServiceName>
+	</PropertyGroup>
+
+	<!-- Include project files -->
+	<ItemGroup>
+		<Folder Include="mastacos_ui\public\" />
+		<Folder Include="mastacos_ui\src\" />
+	</ItemGroup>
 </Project>

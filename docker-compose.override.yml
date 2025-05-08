@@ -10,3 +10,11 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+  mastacos_ui:
+    ports:
+      - "8081:8080"
+    environment:
+      - NODE_ENV=development
+    # This is the key part for browser launch
+    labels:
+      - "com.microsoft.visualstudio.debuggee.program=http://localhost:8081"
