@@ -1,3 +1,4 @@
 # MasTacos
-# WebAPI built with DotNet 8.0
-# VueJs front-end
+## WebAPI built with DotNet core 8.0
+### Docker for containerization of webapi and database with MySql
+## VueJs front-end
