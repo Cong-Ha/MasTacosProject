@@ -13,7 +13,10 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=db;Port=3306;Database=mas_tacos;User=mas_tacos_user;Password=mas_tacos_password;
-
+      - ASPNETCORE_URLS=http://0.0.0.0:80
+    networks:
+      - mastacos-network
+      
   mastacos_ui:
     build:
       context: ./mastacos_ui/mastacos_ui
@@ -27,7 +30,12 @@ services:
     environment:
       - NODE_ENV=development
     tty: true
-
+    command: sh -c "npm install && npm run serve -- --host 0.0.0.0"
+    networks:
+      - mastacos-network
+    depends_on:
+      - mastacos
+      
   db:
     image: mysql:8.0
     container_name: MySQL
@@ -43,6 +51,12 @@ services:
       - db-data:/var/lib/mysql
       - ./MasTacos/Scripts:/docker-entrypoint-initdb.d
     command: --default-authentication-plugin=mysql_native_password
+    networks:
+      - mastacos-network
 
 volumes:
   db-data:
+  
+networks:
+  mastacos-network:
+    driver: bridge
