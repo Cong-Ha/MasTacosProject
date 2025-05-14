@@ -1,32 +1,36 @@
 <script setup lang="ts">
     import { ref, computed, onMounted } from 'vue';
-    import { menuService } from '@/services/menuService';
     import type { MenuItem } from '@/types';
     import MenuItemModal from './MenuItemModal.vue';
     import ShoppingCart from './ShoppingCart.vue';
     import type { CartItem } from './ShoppingCart.vue';
+    import { useMenuItemsStore } from '@/store/menuItemsStore';
 
-    // State
-    const menuItems = ref<MenuItem[]>([]);
-    const loading = ref(true);
-    const error = ref<string | null>(null);
+    // Initialize the store
+    const menuItemsStore = useMenuItemsStore();
+
+    // Local component state
     const selectedCategory = ref<string | null>(null);
     const selectedMenuItem = ref<MenuItem | null>(null);
     const isModalVisible = ref(false);
     const cart = ref<CartItem[]>([]);
 
-    // Computed properties
-    const activeMenuItems = computed(() => {
-        // Filter to show only active menu items
-        return menuItems.value.filter(item => item.isActive);
-    });
+    // Get computed properties from the store
+    const loading = computed(() => menuItemsStore.loading);
+    const error = computed(() => menuItemsStore.error);
 
+    // Get active menu items from store
+    const activeMenuItems = computed(() =>
+        menuItemsStore.items.filter(item => item.isActive === true)
+    );
+
+    // Get categories only from active menu items
     const categories = computed(() => {
-        // Get categories only from active menu items
         const uniqueCategories = new Set(activeMenuItems.value.map(item => item.category));
         return Array.from(uniqueCategories).sort();
     });
 
+    // Filter items based on selected category
     const filteredMenuItems = computed(() => {
         if (!selectedCategory.value) return activeMenuItems.value;
         return activeMenuItems.value.filter(item => item.category === selectedCategory.value);
@@ -34,22 +38,8 @@
 
     // Methods
     const fetchMenuItems = async () => {
-        loading.value = true;
-        error.value = null;
-
-        try {
-            const data = await menuService.getMenuItems();
-            menuItems.value = data;
-        } catch (err) {
-            if (err instanceof Error) {
-                error.value = err.message;
-            } else {
-                error.value = 'An unknown error occurred';
-            }
-            console.error('Failed to fetch menu items:', err);
-        } finally {
-            loading.value = false;
-        }
+        // Use the store's method to fetch items
+        await menuItemsStore.fetchMenuItems();
     };
 
     const openModal = (item: MenuItem) => {
@@ -76,7 +66,7 @@
         cart.value.splice(index, 1);
     };
 
-    // Lifecycle hooks
+    // Fetch menu items on component mount
     onMounted(() => {
         fetchMenuItems();
     });
@@ -149,7 +139,7 @@
                     </div>
 
                     <div v-for="item in filteredMenuItems"
-                         :key="item.id"
+                         :key="item.itemId"
                          class="col-md-6 col-lg-4 mb-4">
                         <div class="card h-100 menu-item">
                             <div class="card-body">
