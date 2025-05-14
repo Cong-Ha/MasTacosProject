@@ -28,9 +28,9 @@ export const menuService = {
             return response.data;
         } catch (error) {
             console.error('Error fetching menu items:', error);
-            if (axios.isAxiosError(error)) {
-                console.error('Response status:', error.response?.status);
-                console.error('Response data:', error.response?.data);
+            if (axios.isAxiosError(error) && error.response) {
+                console.error('Response status:', error.response.status);
+                console.error('Response data:', error.response.data);
             }
             throw error;
         }
@@ -48,9 +48,9 @@ export const menuService = {
             return response.data;
         } catch (error) {
             console.error(`Error fetching menu items for category ${category}:`, error);
-            if (axios.isAxiosError(error)) {
-                console.error('Response status:', error.response?.status);
-                console.error('Response data:', error.response?.data);
+            if (axios.isAxiosError(error) && error.response) {
+                console.error('Response status:', error.response.status);
+                console.error('Response data:', error.response.data);
             }
             throw error;
         }
@@ -68,9 +68,9 @@ export const menuService = {
             return response.data;
         } catch (error) {
             console.error(`Error fetching menu item ${id}:`, error);
-            if (axios.isAxiosError(error)) {
-                console.error('Response status:', error.response?.status);
-                console.error('Response data:', error.response?.data);
+            if (axios.isAxiosError(error) && error.response) {
+                console.error('Response status:', error.response.status);
+                console.error('Response data:', error.response.data);
             }
             throw error;
         }
@@ -87,9 +87,89 @@ export const menuService = {
             return response.data;
         } catch (error) {
             console.error('Error fetching popular menu items:', error);
-            if (axios.isAxiosError(error)) {
-                console.error('Response status:', error.response?.status);
-                console.error('Response data:', error.response?.data);
+            if (axios.isAxiosError(error) && error.response) {
+                console.error('Response status:', error.response.status);
+                console.error('Response data:', error.response.data);
+            }
+            throw error;
+        }
+    },
+
+    /**
+     * Create a new menu item
+     * @param menuItem MenuItem object without ID
+     * @returns Promise with created MenuItem object (including ID)
+     */
+    async createMenuItem(menuItem: Omit<MenuItem, 'id'>): Promise<MenuItem> {
+        try {
+            console.log('Creating new menu item:', menuItem);
+            const response = await api.post('/menuItems', menuItem);
+            return response.data;
+        } catch (error) {
+            console.error('Error creating menu item:', error);
+            if (axios.isAxiosError(error) && error.response) {
+                console.error('Response status:', error.response.status);
+                console.error('Response data:', error.response.data);
+            }
+            throw error;
+        }
+    },
+
+    /**
+     * Update an existing menu item
+     * @param menuItem MenuItem object with ID
+     * @returns Promise with updated MenuItem object
+     */
+    async updateMenuItem(menuItem: MenuItem): Promise<MenuItem> {
+        try {
+            console.log(`Updating menu item ${menuItem.itemId}:`, menuItem);
+            const response = await api.put(`/menuItems/${menuItem.itemId}`, menuItem);
+            return response.data;
+        } catch (error) {
+            console.error(`Error updating menu item ${menuItem.itemId}:`, error);
+            if (axios.isAxiosError(error) && error.response) {
+                console.error('Response status:', error.response.status);
+                console.error('Response data:', error.response.data);
+            }
+            throw error;
+        }
+    },
+
+    /**
+     * Delete a menu item
+     * @param id Menu item ID to delete
+     * @returns Promise with success status
+     */
+    async deleteMenuItem(id: number): Promise<void> {
+        try {
+            console.log(`Deleting menu item ${id}`);
+            await api.delete(`/menuItems/${id}`);
+        } catch (error) {
+            console.error(`Error deleting menu item ${id}:`, error);
+            if (axios.isAxiosError(error) && error.response) {
+                console.error('Response status:', error.response.status);
+                console.error('Response data:', error.response.data);
+            }
+            throw error;
+        }
+    },
+
+    /**
+     * Update menu item status (active/inactive)
+     * @param id Menu item ID
+     * @param isActive New active status
+     * @returns Promise with updated MenuItem object
+     */
+    async updateMenuItemStatus(id: number, isActive: boolean): Promise<MenuItem> {
+        try {
+            console.log(`Updating menu item ${id} status to ${isActive}`);
+            const response = await api.patch(`/menuItems/${id}/status`, { isActive });
+            return response.data;
+        } catch (error) {
+            console.error(`Error updating menu item ${id} status:`, error);
+            if (axios.isAxiosError(error) && error.response) {
+                console.error('Response status:', error.response.status);
+                console.error('Response data:', error.response.data);
             }
             throw error;
         }

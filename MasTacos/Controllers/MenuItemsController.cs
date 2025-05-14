@@ -6,7 +6,7 @@ namespace MasTacos.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class MenuItemsController : ControllerBase  // Note: Changed to plural
+    public class MenuItemsController : ControllerBase
     {
         private readonly IMenuItemRepository _menuItemRepository;
         public MenuItemsController(IMenuItemRepository menuItemRepository)
@@ -14,7 +14,7 @@ namespace MasTacos.Controllers
             _menuItemRepository = menuItemRepository;
         }
 
-        [HttpGet]  // Changed from [HttpGet("menu")]
+        [HttpGet]
         public async Task<ActionResult<IEnumerable<MenuItem>>> GetMenuItems()
         {
             try
@@ -28,7 +28,7 @@ namespace MasTacos.Controllers
             }
         }
 
-        [HttpGet("{id}")]  // Changed from [HttpGet("menu/{id}")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<MenuItem>> GetMenuItem(int id)
         {
             try
@@ -46,7 +46,7 @@ namespace MasTacos.Controllers
             }
         }
 
-        [HttpGet("category/{category}")]  // Added for category filtering
+        [HttpGet("category/{category}")]
         public async Task<ActionResult<IEnumerable<MenuItem>>> GetMenuItemsByCategory(string category)
         {
             try
@@ -62,7 +62,7 @@ namespace MasTacos.Controllers
             }
         }
 
-        [HttpGet("popular")]  // Added for popular items
+        [HttpGet("popular")]
         public async Task<ActionResult<IEnumerable<MenuItem>>> GetPopularItems()
         {
             try
@@ -77,7 +77,7 @@ namespace MasTacos.Controllers
             }
         }
 
-        [HttpPost]  // Changed from [HttpPost("menu")]
+        [HttpPost]
         public async Task<ActionResult<MenuItem>> CreateMenuItem(MenuItem menuItem)
         {
             try
@@ -95,7 +95,7 @@ namespace MasTacos.Controllers
             }
         }
 
-        [HttpPut("{id}")]  // Changed from [HttpPut("menu/{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateMenuItem(int id, MenuItem menuItem)
         {
             try
@@ -126,7 +126,27 @@ namespace MasTacos.Controllers
             }
         }
 
-        [HttpDelete("{id}")]  // Changed from [HttpDelete("menu/{id}")]
+        [HttpPatch("{id}/status")]
+        public async Task<IActionResult> UpdateMenuItemStatus(int id, [FromBody] StatusUpdateModel model)
+        {
+            try
+            {
+                var menuItem = await _menuItemRepository.GetByIdAsync(id);
+                if (menuItem == null)
+                {
+                    return NotFound($"Menu item with ID {id} not found");
+                }
+                menuItem.IsActive = model.IsActive;
+                await _menuItemRepository.UpdateAsync(menuItem);
+                return Ok(menuItem);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error updating menu item status: {ex.Message}");
+            }
+        }
+
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMenuItem(int id)
         {
             try

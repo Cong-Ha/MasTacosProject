@@ -13,8 +13,9 @@
     <DockerServiceUrl>http://localhost:8081</DockerServiceUrl>
     <DockerServiceName>mastacos_ui</DockerServiceName>
   </PropertyGroup>
-  <!-- Include project files -->
   <ItemGroup>
-    <Folder Include="mastacos_ui\src\stores\" />
+    <None Remove="mastacos_ui\src\stores\**" />
+    <TypeScriptConfiguration Remove="mastacos_ui\src\stores\**" />
   </ItemGroup>
+  <!-- Include project files -->
 </Project>

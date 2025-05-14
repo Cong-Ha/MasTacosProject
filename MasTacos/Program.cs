@@ -60,7 +60,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// Only use HTTPS redirection in non-Docker, production environments
+// TODO: Only use HTTPS redirection in non-Docker, production environments
 // app.UseHttpsRedirection();
 
 app.UseAuthorization();

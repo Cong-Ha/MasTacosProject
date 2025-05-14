@@ -16,14 +16,20 @@
     const cart = ref<CartItem[]>([]);
 
     // Computed properties
+    const activeMenuItems = computed(() => {
+        // Filter to show only active menu items
+        return menuItems.value.filter(item => item.isActive);
+    });
+
     const categories = computed(() => {
-        const uniqueCategories = new Set(menuItems.value.map(item => item.category));
+        // Get categories only from active menu items
+        const uniqueCategories = new Set(activeMenuItems.value.map(item => item.category));
         return Array.from(uniqueCategories).sort();
     });
 
     const filteredMenuItems = computed(() => {
-        if (!selectedCategory.value) return menuItems.value;
-        return menuItems.value.filter(item => item.category === selectedCategory.value);
+        if (!selectedCategory.value) return activeMenuItems.value;
+        return activeMenuItems.value.filter(item => item.category === selectedCategory.value);
     });
 
     // Methods
@@ -100,6 +106,12 @@
             <button class="btn btn-outline-danger" @click="fetchMenuItems">Try Again</button>
         </div>
 
+        <!-- Empty state when no active menu items -->
+        <div v-else-if="activeMenuItems.length === 0" class="alert alert-info mx-auto" style="max-width: 500px;">
+            <h4 class="alert-heading">No Menu Items Available</h4>
+            <p>There are currently no active menu items. Please check back later!</p>
+        </div>
+
         <!-- Menu items display -->
         <div v-else class="row">
             <div class="col-md-3 mb-4">
@@ -129,6 +141,13 @@
 
             <div class="col-md-9">
                 <div class="row">
+                    <!-- No items in selected category message -->
+                    <div v-if="filteredMenuItems.length === 0" class="col-12">
+                        <div class="alert alert-info">
+                            <p class="mb-0">No menu items available in this category.</p>
+                        </div>
+                    </div>
+
                     <div v-for="item in filteredMenuItems"
                          :key="item.id"
                          class="col-md-6 col-lg-4 mb-4">
