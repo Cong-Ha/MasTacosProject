@@ -12,7 +12,7 @@
         </div>
 
         <!-- Loading state -->
-        <div v-if="loading" class="text-center my-5">
+        <div v-if="isLoading" class="text-center my-5">
             <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>
@@ -20,16 +20,16 @@
         </div>
 
         <!-- Error state -->
-        <div v-if="error" class="alert alert-danger mb-4">
+        <div v-if="storeError" class="alert alert-danger mb-4">
             <i class="fas fa-exclamation-triangle me-2"></i>
-            {{ error }}
+            {{ storeError }}
             <button type="button" class="btn btn-outline-danger btn-sm ms-3" @click="fetchMenuItems">
                 Retry
             </button>
         </div>
 
         <!-- Search and filters -->
-        <div v-if="!loading && !error" class="row mb-4">
+        <div v-if="!isLoading && !storeError" class="row mb-4">
             <div class="col-md-6">
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-search"></i></span>
@@ -42,7 +42,7 @@
             <div class="col-md-3">
                 <select class="form-select" v-model="categoryFilter">
                     <option value="">All Categories</option>
-                    <option v-for="category in uniqueCategories" :key="category" :value="category">
+                    <option v-for="category in allCategories" :key="category" :value="category">
                         {{ category }}
                     </option>
                 </select>
@@ -57,7 +57,7 @@
         </div>
 
         <!-- Table -->
-        <div v-if="!loading && !error && menuItems.length > 0" class="table-responsive shadow-4 rounded-5">
+        <div v-if="!isLoading && !storeError && storeItems.length > 0" class="table-responsive shadow-4 rounded-5">
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
@@ -144,7 +144,7 @@
         </div>
 
         <!-- Empty state -->
-        <div v-if="!loading && !error && menuItems.length === 0" class="card text-center my-5">
+        <div v-if="!isLoading && !storeError && storeItems.length === 0" class="card text-center my-5">
             <div class="card-body">
                 <i class="fas fa-utensils fa-3x text-muted mb-3"></i>
                 <h5>No Menu Items Found</h5>
@@ -156,7 +156,7 @@
         </div>
 
         <!-- Pagination -->
-        <div v-if="!loading && !error && totalPages > 1" class="d-flex justify-content-center mt-4">
+        <div v-if="!isLoading && !storeError && totalPages > 1" class="d-flex justify-content-center mt-4">
             <nav aria-label="Page navigation">
                 <ul class="pagination">
                     <li class="page-item" :class="{ disabled: currentPage === 1 }">
@@ -241,7 +241,7 @@
                                        list="categories"
                                        required />
                                 <datalist id="categories">
-                                    <option v-for="category in uniqueCategories" :key="category" :value="category" />
+                                    <option v-for="category in allCategories" :key="category" :value="category" />
                                 </datalist>
                             </div>
                             <div class="form-check form-switch mb-3">
@@ -343,13 +343,13 @@
 
 <script setup lang="ts">
     import { ref, computed, onMounted, watch } from 'vue';
-    import type { MenuItem } from '@/types';
-    import { menuService } from '@/services/menuService';
+    import type { MenuItem, NewMenuItem } from '@/types';
+    import { useMenuItemsStore } from '@/store/menuItemsStore';
 
-    // State
-    const menuItems = ref<MenuItem[]>([]);
-    const loading = ref(true);
-    const error = ref<string | null>(null);
+    // Initialize store
+    const menuItemsStore = useMenuItemsStore();
+
+    // Form state (local to component)
     const formLoading = ref(false);
     const formError = ref<string | null>(null);
 
@@ -377,6 +377,12 @@
         popularityScore: 50
     });
     const itemToDelete = ref<MenuItem | null>(null);
+
+    // Get store state via computed properties
+    const storeItems = computed(() => menuItemsStore.items);
+    const isLoading = computed(() => menuItemsStore.loading);
+    const storeError = computed(() => menuItemsStore.error);
+    const allCategories = computed(() => menuItemsStore.allCategories);
 
     // Fetch menu items on component mount
     onMounted(async () => {
@@ -406,31 +412,14 @@
         }
     });
 
-    // Fetch all menu items from API
+    // Fetch all menu items using store
     const fetchMenuItems = async () => {
-        loading.value = true;
-        error.value = null;
-
-        try {
-            menuItems.value = await menuService.getMenuItems();
-            console.log(menuItems.value);
-        } catch (err) {
-            error.value = 'Failed to load menu items. Please try again.';
-            console.error('Error fetching menu items:', err);
-        } finally {
-            loading.value = false;
-        }
+        await menuItemsStore.fetchMenuItems(true); // Force refresh
     };
 
     // Computed properties
-    const uniqueCategories = computed(() => {
-        const categories = new Set<string>();
-        menuItems.value.forEach(item => categories.add(item.category));
-        return Array.from(categories);
-    });
-
     const filteredItems = computed(() => {
-        let result = [...menuItems.value];
+        let result = [...storeItems.value];
 
         // Apply search filter
         if (searchTerm.value) {
@@ -486,29 +475,36 @@
     });
 
     const totalPages = computed(() => {
-        let filteredCount = menuItems.value.length;
+        let filteredCount = storeItems.value.length;
 
         // Apply filters for accurate page count
-        if (searchTerm.value) {
-            const term = searchTerm.value.toLowerCase();
-            filteredCount = menuItems.value.filter(item =>
-                item.name.toLowerCase().includes(term) ||
-                item.description.toLowerCase().includes(term) ||
-                item.category.toLowerCase().includes(term)
-            ).length;
-        }
+        if (searchTerm.value || categoryFilter.value || statusFilter.value !== '') {
+            filteredCount = storeItems.value.filter(item => {
+                let matches = true;
 
-        if (categoryFilter.value) {
-            filteredCount = menuItems.value.filter(item =>
-                item.category === categoryFilter.value
-            ).length;
-        }
+                // Apply search filter
+                if (searchTerm.value) {
+                    const term = searchTerm.value.toLowerCase();
+                    matches = matches && (
+                        item.name.toLowerCase().includes(term) ||
+                        item.description.toLowerCase().includes(term) ||
+                        item.category.toLowerCase().includes(term)
+                    );
+                }
 
-        if (statusFilter.value !== '') {
-            const isActive = statusFilter.value === 'true';
-            filteredCount = menuItems.value.filter(item =>
-                item.isActive === isActive
-            ).length;
+                // Apply category filter
+                if (categoryFilter.value) {
+                    matches = matches && (item.category === categoryFilter.value);
+                }
+
+                // Apply status filter
+                if (statusFilter.value !== '') {
+                    const isActive = statusFilter.value === 'true';
+                    matches = matches && (item.isActive === isActive);
+                }
+
+                return matches;
+            }).length;
         }
 
         return Math.max(1, Math.ceil(filteredCount / itemsPerPage.value));
@@ -558,8 +554,8 @@
 
         try {
             if (editingItem.value.itemId === 0) {
-                // Create new item - exclude itemId for creation
-                const newItemData = {
+                // Create new item using store
+                const newItemData: NewMenuItem = {
                     name: editingItem.value.name,
                     description: editingItem.value.description,
                     price: editingItem.value.price,
@@ -569,18 +565,11 @@
                 };
 
                 console.log("Creating new item:", newItemData);
-                const createdItem = await menuService.createMenuItem(newItemData);
-                menuItems.value.push(createdItem);
+                await menuItemsStore.createMenuItem(newItemData);
             } else {
-                // Update existing item
+                // Update existing item using store
                 console.log("Updating existing item:", editingItem.value);
-                const updatedItem = await menuService.updateMenuItem(editingItem.value);
-
-                // Update in local array
-                const index = menuItems.value.findIndex(item => item.itemId === updatedItem.itemId);
-                if (index !== -1) {
-                    menuItems.value[index] = updatedItem;
-                }
+                await menuItemsStore.updateMenuItem(editingItem.value);
             }
 
             showItemModal.value = false; // Hide the modal
@@ -605,14 +594,8 @@
         formError.value = null;
 
         try {
-            await menuService.deleteMenuItem(itemToDelete.value.itemId);
-
-            // Remove from local array
-            const index = menuItems.value.findIndex(item => item.itemId === itemToDelete.value?.itemId);
-            if (index !== -1) {
-                menuItems.value.splice(index, 1);
-            }
-
+            // Delete using store action
+            await menuItemsStore.deleteMenuItem(itemToDelete.value.itemId);
             showDeleteModal.value = false; // Hide the modal
         } catch (err) {
             formError.value = 'Failed to delete menu item. Please try again.';
@@ -625,19 +608,15 @@
     const toggleStatus = async (item: MenuItem) => {
         try {
             const newStatus = !item.isActive;
-            const updatedItem = await menuService.updateMenuItemStatus(item.itemId, newStatus);
+            // Use store to update status
+            await menuItemsStore.updateMenuItemStatus(item.itemId, newStatus);
 
-            // Update in local array
-            const index = menuItems.value.findIndex(i => i.itemId === item.itemId);
-            if (index !== -1) {
-                menuItems.value[index] = updatedItem;
-            }
         } catch (err) {
             console.error('Error toggling menu item status:', err);
-            error.value = 'Failed to update item status. Please try again.';
+            formError.value = 'Failed to update item status. Please try again.';
             // Hide error after 3 seconds
             setTimeout(() => {
-                error.value = null;
+                formError.value = null;
             }, 3000);
         }
     };

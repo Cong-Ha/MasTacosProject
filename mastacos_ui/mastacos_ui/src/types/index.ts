@@ -77,3 +77,13 @@ export interface SurveyResponse {
   feedback: string;
   followedUp: boolean;
 }
+
+// new menu item interface
+export interface NewMenuItem {
+    name: string;
+    description: string;
+    price: number;
+    category: string;
+    isActive: boolean;
+    popularityScore: number;
+}

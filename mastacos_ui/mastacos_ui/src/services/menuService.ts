@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { MenuItem } from '@/types';
+import type { MenuItem, NewMenuItem } from '@/types';
 import { API_BASE_URL } from '@/config';
 
 /**
@@ -100,7 +100,7 @@ export const menuService = {
      * @param menuItem MenuItem object without ID
      * @returns Promise with created MenuItem object (including ID)
      */
-    async createMenuItem(menuItem: Omit<MenuItem, 'id'>): Promise<MenuItem> {
+    async createMenuItem(menuItem: NewMenuItem): Promise<MenuItem> {
         try {
             console.log('Creating new menu item:', menuItem);
             const response = await api.post('/menuItems', menuItem);
