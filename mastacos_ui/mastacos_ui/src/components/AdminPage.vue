@@ -203,47 +203,80 @@
                             {{ formError }}
                         </div>
 
-                        <form v-if="!formLoading">
+                        <form v-if="!formLoading" @submit.prevent="validateAndSave">
                             <div class="mb-3">
-                                <label for="itemName" class="form-label">Name</label>
+                                <label for="itemName" class="form-label">Name <span class="text-danger">*</span></label>
                                 <input type="text"
                                        class="form-control"
+                                       :class="{ 'is-invalid': v$.name.$error }"
                                        id="itemName"
                                        v-model="editingItem.name"
+                                       @blur="v$.name.$touch()"
                                        required />
+                                <div class="error-container">
+                                    <div v-if="v$.name.$error" class="text-danger small mt-1">
+                                        <span v-if="v$.name.required.$invalid">Name is required.</span>
+                                        <span v-if="v$.name.minLength.$invalid">Name must be at least 3 characters.</span>
+                                    </div>
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label for="itemDescription" class="form-label">Description</label>
                                 <textarea class="form-control"
+                                          :class="{ 'is-invalid': v$.description.$error }"
                                           id="itemDescription"
                                           rows="3"
-                                          v-model="editingItem.description"></textarea>
+                                          v-model="editingItem.description"
+                                          @blur="v$.description.$touch()"></textarea>
+                                <div class="error-container">
+                                    <div v-if="v$.description.$error" class="text-danger small mt-1">
+                                        <span v-if="v$.description.maxLength.$invalid">Description must be no more than 500 characters.</span>
+                                    </div>
+                                </div>
                             </div>
                             <div class="mb-3">
-                                <label for="itemPrice" class="form-label">Price</label>
+                                <label for="itemPrice" class="form-label">Price <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text">$</span>
                                     <input type="number"
                                            class="form-control"
+                                           :class="{ 'is-invalid': v$.price.$error }"
                                            id="itemPrice"
                                            v-model.number="editingItem.price"
+                                           @blur="v$.price.$touch()"
                                            step="0.01"
                                            min="0"
                                            required />
                                 </div>
+                                <div class="error-container">
+                                    <div v-if="v$.price.$error" class="text-danger small mt-1">
+                                        <span v-if="v$.price.required.$invalid">Price is required.</span>
+                                        <span v-if="v$.price.minValue.$invalid">Price must be greater than or equal to 0.</span>
+                                    </div>
+                                </div>
                             </div>
                             <div class="mb-3">
-                                <label for="itemCategory" class="form-label">Category</label>
+                                <label for="itemCategory" class="form-label">Category <span class="text-danger">*</span></label>
                                 <input type="text"
                                        class="form-control"
+                                       :class="{ 'is-invalid': v$.category.$error }"
                                        id="itemCategory"
                                        v-model="editingItem.category"
+                                       @blur="v$.category.$touch()"
                                        list="categories"
                                        required />
                                 <datalist id="categories">
                                     <option v-for="category in allCategories" :key="category" :value="category" />
                                 </datalist>
+                                <div class="error-container">
+                                    <div v-if="v$.category.$error" class="text-danger small mt-1">
+                                        <span v-if="v$.category.required.$invalid">Category is required.</span>
+                                        <span v-if="v$.category.minLength.$invalid">Category must be at least 3 characters.</span>
+                                    </div>
+                                </div>
                             </div>
+
+                            <!-- Status toggle -->
                             <div class="form-check form-switch mb-3">
                                 <input class="form-check-input"
                                        type="checkbox"
@@ -253,6 +286,8 @@
                                     {{ editingItem.isActive ? 'Active' : 'Inactive' }}
                                 </label>
                             </div>
+
+                            <!-- Popularity score -->
                             <div class="mb-3">
                                 <label for="itemPopularity" class="form-label">
                                     Popularity Score: {{ editingItem.popularityScore }}
@@ -274,8 +309,8 @@
                         </button>
                         <button type="button"
                                 class="btn btn-primary"
-                                @click="saveItem"
-                                :disabled="formLoading">
+                                @click="validateAndSave"
+                                :disabled="formLoading || v$.$invalid">
                             Save
                         </button>
                     </div>
@@ -345,6 +380,8 @@
     import { ref, computed, onMounted, watch } from 'vue';
     import type { MenuItem, NewMenuItem } from '@/types';
     import { useMenuItemsStore } from '@/store/menuItemsStore';
+    import { useVuelidate } from '@vuelidate/core';
+    import { required, minLength, maxLength, minValue } from '@vuelidate/validators';
 
     // Initialize store
     const menuItemsStore = useMenuItemsStore();
@@ -378,6 +415,30 @@
     });
     const itemToDelete = ref<MenuItem | null>(null);
 
+    // Vuelidate validation rules
+    const rules = computed(() => {
+        return {
+            name: {
+                required,
+                minLength: minLength(3)
+            },
+            description: {
+                maxLength: maxLength(500)
+            },
+            price: {
+                required,
+                minValue: minValue(0)
+            },
+            category: {
+                required,
+                minLength: minLength(3)
+            }
+        };
+    });
+
+    // Initialize Vuelidate
+    const v$ = useVuelidate(rules, editingItem);
+
     // Get store state via computed properties
     const storeItems = computed(() => menuItemsStore.items);
     const isLoading = computed(() => menuItemsStore.loading);
@@ -398,6 +459,8 @@
             if (!showDeleteModal.value) {
                 document.body.classList.remove('modal-open');
             }
+            // Reset validation state when modal closes
+            v$.value.$reset();
         }
     });
 
@@ -535,6 +598,8 @@
         };
 
         formError.value = null;
+        // Reset Vuelidate state
+        v$.value.$reset();
         showItemModal.value = true; // Just set the state to show the modal
     };
 
@@ -543,7 +608,19 @@
         editingItem.value = { ...item };
         console.log("Editing item:", editingItem.value);
         formError.value = null;
+        // Reset validation when editing existing item
+        v$.value.$reset();
         showItemModal.value = true; // Just set the state to show the modal
+    };
+
+    // Method to validate before saving
+    const validateAndSave = async () => {
+        const result = await v$.value.$validate();
+        if (!result) {
+            formError.value = 'Please correct the validation errors before saving.';
+            return;
+        }
+        await saveItem();
     };
 
     const saveItem = async () => {
@@ -643,6 +720,15 @@
 
     .rounded-5 {
         border-radius: 0.5rem;
+    }
+
+    /* Validation error styles */
+    .error-container {
+        min-height: 24px; /* Reserve space for error messages */
+    }
+
+    .is-invalid {
+        border-color: #dc3545;
     }
 
     /* Modal styles */
