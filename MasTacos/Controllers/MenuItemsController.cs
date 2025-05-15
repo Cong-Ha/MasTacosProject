@@ -117,6 +117,12 @@ namespace MasTacos.Controllers
                 existingMenuItem.PopularityScore = menuItem.PopularityScore;
                 // Add any other properties that need updating
 
+                if (menuItem.ImageData != null)
+                {
+                    existingMenuItem.ImageData = menuItem.ImageData;
+                    existingMenuItem.ImageMimeType = menuItem.ImageMimeType;
+                }
+
                 await _menuItemRepository.UpdateAsync(existingMenuItem);
                 return Ok(existingMenuItem);
             }
@@ -158,6 +164,20 @@ namespace MasTacos.Controllers
                     return NotFound($"Menu item with ID {id} not found");
                 }
 
+                // First check if the menu item has an image and clear it
+                if (menuItem.ImageData != null)
+                {
+                    menuItem.ImageData = null;
+                    menuItem.ImageMimeType = null;
+
+                    // Update the menu item to clear the image data
+                    await _menuItemRepository.UpdateAsync(menuItem);
+
+                    // Re-fetch the menu item
+                    menuItem = await _menuItemRepository.GetByIdAsync(id);
+                }
+
+                // Now delete the menu item
                 var result = await _menuItemRepository.DeleteAsync(menuItem);
 
                 if (result)
@@ -172,6 +192,99 @@ namespace MasTacos.Controllers
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Error deleting menu item: {ex.Message}");
+            }
+        }
+
+        [HttpGet("{id}/image")]
+        public async Task<IActionResult> GetImage(int id)
+        {
+            try
+            {
+                var menuItem = await _menuItemRepository.GetByIdAsync(id);
+
+                if (menuItem == null)
+                {
+                    return NotFound($"Menu item with ID {id} not found");
+                }
+
+                if (menuItem.ImageData == null || menuItem.ImageMimeType == null)
+                {
+                    return NotFound("This menu item has no image");
+                }
+
+                return File(menuItem.ImageData, menuItem.ImageMimeType);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error retrieving image: {ex.Message}");
+            }
+        }
+
+        [HttpPost("{id}/image")]
+        public async Task<IActionResult> UploadImage(int id, IFormFile file)
+        {
+            try
+            {
+                if (file == null || file.Length == 0)
+                {
+                    return BadRequest("No file uploaded");
+                }
+
+                var allowedTypes = new[] { "image/jpeg", "image/png", "image/gif" };
+                if (!allowedTypes.Contains(file.ContentType))
+                {
+                    return BadRequest("Invalid file type. Only JPEG, PNG, and GIF are allowed.");
+                }
+
+                if (file.Length > 2 * 1024 * 1024) // 2 MB limit
+                {
+                    return BadRequest("File size exceeds the limit of 2 MB.");
+                }
+                var menuItem = await _menuItemRepository.GetByIdAsync(id);
+                if (menuItem == null)
+                {
+                    return NotFound($"Menu item with ID {id} not found");
+                }
+
+                using (var memoryStream = new MemoryStream())
+                {
+                    await file.CopyToAsync(memoryStream);
+                    menuItem.ImageData = memoryStream.ToArray();
+                    menuItem.ImageMimeType = file.ContentType;
+                }
+
+                await _menuItemRepository.UpdateAsync(menuItem);
+                return Ok($"Image for menu item with ID {id} uploaded successfully");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error uploading image: {ex.Message}");
+            }
+        }
+
+        [HttpDelete("{id}/image")]
+        public async Task<IActionResult> RemoveImage(int id)
+        {
+            try
+            {
+                var menuItem = await _menuItemRepository.GetByIdAsync(id);
+                if (menuItem == null)
+                {
+                    return NotFound($"Menu item with ID {id} not found");
+                }
+                if (menuItem.ImageData == null)
+                {
+                    return NotFound("This menu item has no image to remove");
+                }
+
+                menuItem.ImageData = null;
+                menuItem.ImageMimeType = null;
+                await _menuItemRepository.UpdateAsync(menuItem);
+                return Ok($"Image for menu item with ID {id} removed successfully");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error removing image: {ex.Message}");
             }
         }
     }
