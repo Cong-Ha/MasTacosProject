@@ -897,9 +897,6 @@
             const newStatus = !item.isActive;
             // Use store to update status
             await menuItemsStore.updateMenuItemStatus(item.itemId, newStatus);
-
-            // Refresh the list
-            await fetchMenuItems();
         } catch (err) {
             console.error('Error toggling menu item status:', err);
             formError.value = 'Failed to update item status. Please try again.';
