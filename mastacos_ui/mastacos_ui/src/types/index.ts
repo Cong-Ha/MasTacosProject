@@ -9,6 +9,8 @@ export interface MenuItem {
   category: string;
   isActive: boolean;
   popularityScore: number;
+  imageData?: string | null;
+  imageMimeType?: string | null;
 }
 
 // Customer interface
@@ -86,4 +88,6 @@ export interface NewMenuItem {
     category: string;
     isActive: boolean;
     popularityScore: number;
+    imageData?: string | null;
+    imageMimeType?: string | null;
 }

@@ -11,9 +11,9 @@ namespace MasTacos.Models
 
         [Required]
         [MaxLength(100)]
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         [Required]
         [Column(TypeName = "decimal(10, 2)")]
@@ -21,10 +21,14 @@ namespace MasTacos.Models
 
         [Required]
         [MaxLength(50)]
-        public string Category { get; set; }
+        public required string Category { get; set; }
 
         public bool IsActive { get; set; } = true;
 
         public int PopularityScore { get; set; }
+
+        public byte[]? ImageData { get; set; }
+
+        public string? ImageMimeType { get; set; }
     }
 }

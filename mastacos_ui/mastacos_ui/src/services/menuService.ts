@@ -173,5 +173,56 @@ export const menuService = {
             }
             throw error;
         }
+    },
+
+    /**
+     * Upload an image for a menu item
+     * @param id Menu item ID
+     * @param file Image file to upload
+     * @returns Promise with success message
+     */
+    async uploadImage(id: number, file: File): Promise<{ message: string }> {
+        try {
+            console.log(`Uploading image for menu item ${id}`);
+
+            // Need to use a different axios instance for form data
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const response = await axios.post(`${API_BASE_URL}/menuItems/${id}/image`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+
+            return response.data;
+        } catch (error) {
+            console.error(`Error uploading image for menu item ${id}:`, error);
+            if (axios.isAxiosError(error) && error.response) {
+                console.error('Response status:', error.response.status);
+                console.error('Response data:', error.response.data);
+            }
+            throw error;
+        }
+    },
+
+    /**
+     * Delete image from a menu item
+     * @param id Menu item ID
+     * @returns Promise with success message
+     */
+    async deleteImage(id: number): Promise<{ message: string }> {
+        try {
+            console.log(`Deleting image from menu item ${id}`);
+            const response = await api.delete(`/menuItems/${id}/image`);
+            return response.data;
+        } catch (error) {
+            console.error(`Error deleting image from menu item ${id}:`, error);
+            if (axios.isAxiosError(error) && error.response) {
+                console.error('Response status:', error.response.status);
+                console.error('Response data:', error.response.data);
+            }
+            throw error;
+        }
     }
 };

@@ -62,6 +62,7 @@
                 <thead class="table-light">
                     <tr>
                         <th scope="col">ID</th>
+                        <th scope="col">Image</th>
                         <th scope="col">
                             <div class="d-flex align-items-center">
                                 Name
@@ -89,6 +90,16 @@
                 <tbody>
                     <tr v-for="item in filteredItems" :key="item.itemId">
                         <td>{{ item.itemId }}</td>
+                        <td>
+                            <div class="item-image-preview">
+                                <!-- Using @error to show placeholder if image fails to load -->
+                                <img :src="`/api/MenuItems/${item.itemId}/image`"
+                                     alt="Menu item thumbnail"
+                                     class="img-thumbnail"
+                                     style="width: 50px; height: 50px; object-fit: cover;"
+                                     @error="displayPlaceholder" />
+                            </div>
+                        </td>
                         <td>{{ item.name }}</td>
                         <td>
                             <span class="text-truncate d-inline-block" style="max-width: 200px;">
@@ -203,7 +214,7 @@
                             {{ formError }}
                         </div>
 
-                        <form v-if="!formLoading" @submit.prevent="validateAndSave">
+                        <form v-if="!formLoading" @submit.prevent="validateAndSave" ref="itemForm">
                             <div class="mb-3">
                                 <label for="itemName" class="form-label">Name <span class="text-danger">*</span></label>
                                 <input type="text"
@@ -272,6 +283,81 @@
                                     <div v-if="v$.category.$error" class="text-danger small mt-1">
                                         <span v-if="v$.category.required.$invalid">Category is required.</span>
                                         <span v-if="v$.category.minLength.$invalid">Category must be at least 3 characters.</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Image upload field -->
+                            <div class="mb-3">
+                                <label for="itemImage" class="form-label">Item Image</label>
+
+                                <div class="image-upload-container">
+                                    <!-- Image preview -->
+                                    <div v-if="imagePreview" class="image-preview-container mb-2">
+                                        <!-- Show selected image preview -->
+                                        <img :src="imagePreview"
+                                             alt="Selected image preview"
+                                             class="img-thumbnail"
+                                             style="max-height: 200px; max-width: 100%;" />
+                                        <button type="button"
+                                                class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1"
+                                                @click="removeImage">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- Show existing image if editing and no new image selected -->
+                                    <div v-else-if="editingItem.itemId && !imageRemoved" class="image-preview-container mb-2">
+                                        <img :src="`/api/MenuItems/${editingItem.itemId}/image`"
+                                             alt="Item preview"
+                                             class="img-thumbnail"
+                                             style="max-height: 200px; max-width: 100%;"
+                                             @error="handleModalImageError" />
+                                        <button type="button"
+                                                class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1"
+                                                @click="removeImage">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- Always show file input or change button -->
+                                    <div class="mt-2">
+                                        <!-- File input -->
+                                        <div v-if="showFileInput" class="mb-2">
+                                            <div class="input-group">
+                                                <input type="file"
+                                                       class="form-control"
+                                                       id="itemImage"
+                                                       ref="fileInput"
+                                                       @change="handleImageChange"
+                                                       accept="image/jpeg,image/png,image/gif" />
+                                                <button type="button"
+                                                        class="btn btn-outline-secondary"
+                                                        @click="showFileInput = false"
+                                                        title="Cancel">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                            <div class="form-text text-muted">
+                                                Maximum file size: 2MB. Supported formats: JPG, PNG, GIF.
+                                            </div>
+                                        </div>
+
+                                        <!-- Toggle button - shows/hides file input -->
+                                        <div v-if="!showFileInput">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-primary"
+                                                    @click="showFileInput = true">
+                                                <i class="fas fa-upload me-1"></i>
+                                                {{ imagePreview ? 'Change Image' : 'Upload Image' }}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Error message area -->
+                                    <div class="error-container mt-2">
+                                        <div v-if="imageError" class="text-danger small">
+                                            {{ imageError }}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -375,13 +461,13 @@
              v-if="showDeleteModal"></div>
     </div>
 </template>
-
 <script setup lang="ts">
     import { ref, computed, onMounted, watch } from 'vue';
     import type { MenuItem, NewMenuItem } from '@/types';
     import { useMenuItemsStore } from '@/store/menuItemsStore';
     import { useVuelidate } from '@vuelidate/core';
     import { required, minLength, maxLength, minValue } from '@vuelidate/validators';
+    import { menuService } from '@/services/menuService';
 
     // Initialize store
     const menuItemsStore = useMenuItemsStore();
@@ -400,6 +486,16 @@
     const statusFilter = ref('');
     const sortColumn = ref('');
     const sortDirection = ref('asc');
+
+    // Image handling refs
+    const imageFile = ref<File | null>(null);
+    const imagePreview = ref<string | null>(null);
+    const imageError = ref<string | null>(null);
+    const showFileInput = ref(false);
+    const fileInput = ref<HTMLInputElement | null>(null);
+
+    // Flag to track if user has explicitly removed the image
+    const imageRemoved = ref(false);
 
     // Modal state
     const showItemModal = ref(false);
@@ -445,11 +541,6 @@
     const storeError = computed(() => menuItemsStore.error);
     const allCategories = computed(() => menuItemsStore.allCategories);
 
-    // Fetch menu items on component mount
-    onMounted(async () => {
-        await fetchMenuItems();
-    });
-
     // Watch modal state changes to manage body class for scrolling
     watch(showItemModal, (isOpen) => {
         if (isOpen) {
@@ -476,8 +567,27 @@
     });
 
     // Fetch all menu items using store
-    const fetchMenuItems = async () => {
+    const fetchMenuItems = async (): Promise<void> => {
         await menuItemsStore.fetchMenuItems(true); // Force refresh
+    };
+
+    // Function to display placeholder when image fails to load
+    const displayPlaceholder = (event: Event): void => {
+        const imgElement = event.target as HTMLImageElement;
+        // Set a placeholder icon instead of broken image
+        imgElement.outerHTML = `<div class="d-flex justify-content-center align-items-center" style="width: 50px; height: 50px;">
+            <i class="fas fa-image text-muted"></i>
+        </div>`;
+    };
+
+    // Handle modal image error
+    const handleModalImageError = (event: Event): void => {
+        const imgElement = event.target as HTMLImageElement;
+        // Show placeholder image in modal
+        imgElement.outerHTML = `<div class="d-flex justify-content-center align-items-center bg-light" style="width: 100%; height: 200px;">
+            <i class="fas fa-image fa-2x text-muted"></i>
+            <p class="text-muted ms-2 mb-0">No image available</p>
+        </div>`;
     };
 
     // Computed properties
@@ -570,11 +680,12 @@
             }).length;
         }
 
+        // Make sure we don't divide by zero and always return at least 1 page
         return Math.max(1, Math.ceil(filteredCount / itemsPerPage.value));
     });
 
     // Methods
-    const sortBy = (column: string) => {
+    const sortBy = (column: string): void => {
         if (sortColumn.value === column) {
             // Toggle direction if already sorting by this column
             sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
@@ -585,7 +696,64 @@
         }
     };
 
-    const openAddItemModal = () => {
+    // Handle image file selection
+    const handleImageChange = (event: Event): void => {
+        const target = event.target as HTMLInputElement;
+        if (!target.files || target.files.length === 0) {
+            return;
+        }
+
+        const file = target.files[0];
+        imageError.value = null;
+
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        if (!allowedTypes.includes(file.type)) {
+            imageError.value = 'Invalid file type. Please upload JPG, PNG, or GIF.';
+            resetFileInput();
+            return;
+        }
+
+        // Validate file size (max 2MB)
+        const maxSize = 2 * 1024 * 1024; // 2MB
+        if (file.size > maxSize) {
+            imageError.value = 'File is too large. Maximum size is 2MB.';
+            resetFileInput();
+            return;
+        }
+
+        // Store file and create preview
+        imageFile.value = file;
+        imageRemoved.value = false;
+
+        // Create preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            imagePreview.value = e.target?.result as string || null;
+            showFileInput.value = false;
+        };
+        reader.readAsDataURL(file);
+    };
+
+    // Remove image
+    const removeImage = (): void => {
+        imageFile.value = null;
+        imagePreview.value = null;
+        imageRemoved.value = true;
+        showFileInput.value = true;
+        resetFileInput();
+    };
+
+    // Reset file input
+    const resetFileInput = (): void => {
+        if (fileInput.value) {
+            fileInput.value.value = '';
+        }
+        imageFile.value = null;
+    };
+
+    // Open add item modal
+    const openAddItemModal = (): void => {
         // Reset the editing item
         editingItem.value = {
             itemId: 0,
@@ -597,24 +765,40 @@
             popularityScore: 50
         };
 
+        // Reset image state
+        imageFile.value = null;
+        imagePreview.value = null;
+        imageError.value = null;
+        imageRemoved.value = false;
+        showFileInput.value = false;
+
         formError.value = null;
         // Reset Vuelidate state
         v$.value.$reset();
-        showItemModal.value = true; // Just set the state to show the modal
+        showItemModal.value = true;
     };
 
-    const editItem = (item: MenuItem) => {
+    // Edit existing item
+    const editItem = (item: MenuItem): void => {
         // Clone the item to avoid direct mutation
         editingItem.value = { ...item };
         console.log("Editing item:", editingItem.value);
+
+        // Reset image state
+        imageFile.value = null;
+        imagePreview.value = null;
+        imageError.value = null;
+        imageRemoved.value = false;
+        showFileInput.value = false;
+
         formError.value = null;
         // Reset validation when editing existing item
         v$.value.$reset();
-        showItemModal.value = true; // Just set the state to show the modal
+        showItemModal.value = true;
     };
 
     // Method to validate before saving
-    const validateAndSave = async () => {
+    const validateAndSave = async (): Promise<void> => {
         const result = await v$.value.$validate();
         if (!result) {
             formError.value = 'Please correct the validation errors before saving.';
@@ -623,15 +807,17 @@
         await saveItem();
     };
 
-    const saveItem = async () => {
+    const saveItem = async (): Promise<void> => {
         formLoading.value = true;
         formError.value = null;
 
         console.log("Saving item with ID:", editingItem.value.itemId);
 
         try {
+            let createdOrUpdatedItem: MenuItem;
+
             if (editingItem.value.itemId === 0) {
-                // Create new item using store
+                // Create new menu item
                 const newItemData: NewMenuItem = {
                     name: editingItem.value.name,
                     description: editingItem.value.description,
@@ -642,12 +828,33 @@
                 };
 
                 console.log("Creating new item:", newItemData);
-                await menuItemsStore.createMenuItem(newItemData);
+                createdOrUpdatedItem = await menuItemsStore.createMenuItem(newItemData);
             } else {
-                // Update existing item using store
+                // Update existing menu item
                 console.log("Updating existing item:", editingItem.value);
-                await menuItemsStore.updateMenuItem(editingItem.value);
+                createdOrUpdatedItem = await menuItemsStore.updateMenuItem(editingItem.value);
             }
+
+            // Handle image upload if there's a new image
+            if (imageFile.value) {
+                try {
+                    await menuService.uploadImage(createdOrUpdatedItem.itemId, imageFile.value);
+                } catch (error) {
+                    console.error('Error uploading image:', error);
+                    // Don't fail the whole operation if image upload fails
+                }
+            } else if (imageRemoved.value) {
+                // If image was removed, delete it
+                try {
+                    await menuService.deleteImage(createdOrUpdatedItem.itemId);
+                } catch (error) {
+                    console.error('Error deleting image:', error);
+                    // Don't fail the whole operation if image deletion fails
+                }
+            }
+
+            // Refresh menu items
+            await fetchMenuItems();
 
             showItemModal.value = false; // Hide the modal
         } catch (err) {
@@ -658,13 +865,13 @@
         }
     };
 
-    const confirmDelete = (item: MenuItem) => {
+    const confirmDelete = (item: MenuItem): void => {
         itemToDelete.value = item;
         formError.value = null;
         showDeleteModal.value = true; // Show the delete modal
     };
 
-    const deleteItem = async () => {
+    const deleteItem = async (): Promise<void> => {
         if (!itemToDelete.value) return;
 
         formLoading.value = true;
@@ -674,6 +881,9 @@
             // Delete using store action
             await menuItemsStore.deleteMenuItem(itemToDelete.value.itemId);
             showDeleteModal.value = false; // Hide the modal
+
+            // Refresh the list
+            await fetchMenuItems();
         } catch (err) {
             formError.value = 'Failed to delete menu item. Please try again.';
             console.error('Error deleting menu item:', err);
@@ -682,12 +892,14 @@
         }
     };
 
-    const toggleStatus = async (item: MenuItem) => {
+    const toggleStatus = async (item: MenuItem): Promise<void> => {
         try {
             const newStatus = !item.isActive;
             // Use store to update status
             await menuItemsStore.updateMenuItemStatus(item.itemId, newStatus);
 
+            // Refresh the list
+            await fetchMenuItems();
         } catch (err) {
             console.error('Error toggling menu item status:', err);
             formError.value = 'Failed to update item status. Please try again.';
@@ -697,10 +909,19 @@
             }, 3000);
         }
     };
-</script>
 
+    // Fetch items on component mount
+    onMounted(() => {
+        fetchMenuItems();
+    });
+</script>
 <style scoped>
     /* Additional custom styles */
+    .image-preview-container {
+        position: relative;
+        display: inline-block;
+    }
+
     .table-responsive {
         overflow-x: auto;
     }
@@ -730,6 +951,24 @@
     .is-invalid {
         border-color: #dc3545;
     }
+
+    /* Image styles */
+    .item-image-preview {
+        width: 50px;
+        height: 50px;
+        overflow: hidden;
+        border-radius: 4px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #f8f9fa;
+    }
+
+        .item-image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
     /* Modal styles */
     .modal.fade.show {

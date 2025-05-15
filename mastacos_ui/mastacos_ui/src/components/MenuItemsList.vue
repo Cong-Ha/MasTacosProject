@@ -36,6 +36,27 @@
         return activeMenuItems.value.filter(item => item.category === selectedCategory.value);
     });
 
+    // Function to determine if an item has an image
+    const hasImage = (item: MenuItem): boolean => {
+        // Check if imageData is not null
+        return item.imageData !== null;
+    };
+
+    // Function to create image data URL with appropriate MIME type
+    const getImageUrl = (item: MenuItem): string => {
+        // If no image data, return empty string (should not happen due to v-if)
+        if (!item.imageData) return '';
+
+        // If the item has a contentType property, use it
+        if (item.contentType) {
+            return `data:${item.contentType};base64,${item.imageData}`;
+        }
+
+        // If there's no contentType available, use a generic image MIME type
+        // Most browsers can detect the correct format from the data
+        return `data:image/*;base64,${item.imageData}`;
+    };
+
     // Methods
     const fetchMenuItems = async () => {
         // Use the store's method to fetch items
@@ -66,7 +87,7 @@
         cart.value.splice(index, 1);
     };
 
-    // Fetch menu items on component mount
+    // Fetch items on component mount
     onMounted(() => {
         fetchMenuItems();
     });
@@ -142,6 +163,21 @@
                          :key="item.itemId"
                          class="col-md-6 col-lg-4 mb-4">
                         <div class="card h-100 menu-item">
+                            <!-- Image Section -->
+                            <div class="card-img-container">
+                                <!-- Show image data directly if available -->
+                                <img v-if="hasImage(item)"
+                                     :src="getImageUrl(item)"
+                                     class="card-img-top menu-item-image"
+                                     alt="Food item"
+                                     loading="lazy" />
+
+                                <!-- Show placeholder if no imageData -->
+                                <div v-else class="menu-item-placeholder">
+                                    <i class="fas fa-utensils"></i>
+                                </div>
+                            </div>
+
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">
                                     <h5 class="card-title">{{ item.name }}</h5>
@@ -193,4 +229,38 @@
         font-size: 1rem;
         padding: 0.4rem 0.6rem;
     }
+
+    /* Image styles */
+    .card-img-container {
+        height: 180px;
+        overflow: hidden;
+        background-color: #f8f9fa;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .menu-item-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .menu-item:hover .menu-item-image {
+        transform: scale(1.05);
+    }
+
+    .menu-item-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #adb5bd;
+    }
+
+        .menu-item-placeholder i {
+            font-size: 3rem;
+        }
 </style>
