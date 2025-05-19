@@ -11,6 +11,7 @@ export interface MenuItem {
   popularityScore: number;
   imageData?: string | null;
   imageMimeType?: string | null;
+  contentType: string;
 }
 
 // Customer interface
@@ -90,4 +91,11 @@ export interface NewMenuItem {
     popularityScore: number;
     imageData?: string | null;
     imageMimeType?: string | null;
+}
+
+// shopping cart
+export interface CartItem {
+  menuItem: MenuItem;
+  quantity: number;
+  specialInstructions: string;
 }

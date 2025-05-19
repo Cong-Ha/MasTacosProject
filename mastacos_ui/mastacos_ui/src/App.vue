@@ -1,46 +1,82 @@
 <template>
-    <div class="container">
-        <!-- Navigation links -->
-        <header class="my-4">
-            <nav class="navbar navbar-expand-lg navbar-light bg-light">
-                <div class="container-fluid">
-                    <router-link class="navbar-brand" to="/">Nav</router-link>
-                    <button class="navbar-toggler"
-                            type="button"
-                            data-mdb-toggle="collapse"
-                            data-mdb-target="#navbarNav"
-                            aria-controls="navbarNav"
-                            aria-expanded="false"
-                            aria-label="Toggle navigation">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <div class="collapse navbar-collapse" id="navbarNav">
-                        <ul class="navbar-nav">
-                            <li class="nav-item">
-                                <router-link class="nav-link" to="/">Menu</router-link>
-                            </li>
-                            <li class="nav-item">
-                                <router-link class="nav-link" to="/admin">Admin</router-link>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
-        </header>
-        <router-view />
+  <div id="app">
+    <!-- Enhanced Navbar Component -->
+    <NavBar />
+
+    <!-- Main Content -->
+    <div class="container-fluid">
+      <router-view />
     </div>
+  </div>
 </template>
 
 <script setup lang="ts">
+import NavBar from '@/components/NavBar.vue';
+import { onMounted } from 'vue';
+import { useAuth } from '@/store/auth';
 
+const { initializeAuth } = useAuth();
+
+// Initialize authentication state when app starts
+onMounted(() => {
+  initializeAuth();
+});
 </script>
 
 <style>
-    #app {
-        font-family: Roboto, Helvetica, Arial, sans-serif;
-    }
+#app {
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
 
-    .router-link-active {
-        font-weight: bold;
-    }
+.router-link-active {
+  font-weight: bold;
+}
+
+/* Global styles for better UX */
+.container-fluid {
+  padding: 0;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Loading animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+  .container-fluid {
+    padding: 0 15px;
+  }
+}
 </style>
