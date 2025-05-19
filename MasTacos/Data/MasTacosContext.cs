@@ -1,11 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using MasTacos.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 
 namespace MasTacos.Data
 {
-    public class MasTacosContext : DbContext
+    public class MasTacosContext : IdentityDbContext<ApplicationUser>
     {
         private readonly IConfiguration _configuration;
 
@@ -34,6 +35,8 @@ namespace MasTacos.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+            
             // Customer configuration
             modelBuilder.Entity<Customer>()
                 .HasIndex(c => c.Email)
@@ -98,6 +101,14 @@ namespace MasTacos.Data
             modelBuilder.Entity<SurveyResponse>()
                 .HasIndex(s => s.OrderId)
                 .IsUnique();
+            
+            modelBuilder.Entity<ApplicationUser>().ToTable("AspNetUsers");
+            modelBuilder.Entity<IdentityRole>().ToTable("AspNetRoles");
+            modelBuilder.Entity<IdentityUserRole<string>>().ToTable("AspNetUserRoles");
+            modelBuilder.Entity<IdentityUserClaim<string>>().ToTable("AspNetUserClaims");
+            modelBuilder.Entity<IdentityUserLogin<string>>().ToTable("AspNetUserLogins");
+            modelBuilder.Entity<IdentityUserToken<string>>().ToTable("AspNetUserTokens");
+            modelBuilder.Entity<IdentityRoleClaim<string>>().ToTable("AspNetRoleClaims");
         }
     }
 }

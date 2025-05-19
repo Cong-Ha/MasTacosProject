@@ -8,8 +8,8 @@ services:
       - "8080"
       - "8081"
     volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+      - ${APPDATA:-${HOME}/.microsoft/usersecrets}:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA:-${HOME}/.aspnet/https}:/home/app/.aspnet/https:ro
   mastacos_ui:
     ports:
       - "8081:8080"

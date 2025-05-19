@@ -1,9 +1,8 @@
 <script setup lang="ts">
     import { ref, computed, onMounted } from 'vue';
-    import type { MenuItem } from '@/types';
+    import type { MenuItem, CartItem } from '@/types';
     import MenuItemModal from './MenuItemModal.vue';
     import ShoppingCart from './ShoppingCart.vue';
-    import type { CartItem } from './ShoppingCart.vue';
     import { useMenuItemsStore } from '@/store/menuItemsStore';
 
     // Initialize the store
@@ -94,7 +93,7 @@
 </script>
 
 <template>
-    <div class="menu-container">
+    <div class="menu-container ms-3 me-3">
         <!-- Header with shopping cart -->
         <div class="menu-header mb-4 d-flex justify-content-between align-items-center">
             <h1 class="mb-0">Ma's Tacos Menu</h1>
