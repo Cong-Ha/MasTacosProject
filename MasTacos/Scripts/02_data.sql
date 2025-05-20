@@ -72,3 +72,8 @@ INSERT INTO MenuItems (Name, Description, Price, Category, IsActive, PopularityS
     ('Sopapillas', 'Fried pastry with honey and cinnamon', 4.00, 'Desserts', TRUE, 70, NULL, NULL),
     ('Taco Salad', 'Salad in a crispy tortilla bowl with choice of meat', 8.50, 'Entrees', TRUE, 68, NULL, NULL),
     ('Enchiladas', 'Corn tortillas filled with meat, topped with sauce and cheese', 9.50, 'Entrees', TRUE, 78, NULL, NULL);
+
+-- Insert roles into AspNetRoles table
+INSERT INTO AspNetRoles (Id, Name, NormalizedName, ConcurrencyStamp) VALUES
+     (UUID(), 'Admin', 'ADMIN', UUID()),
+     (UUID(), 'Customer', 'CUSTOMER', UUID());

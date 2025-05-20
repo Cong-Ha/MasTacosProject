@@ -7,6 +7,7 @@ module.exports = defineConfig({
         ? '/MasTacosProject'
         : '/',
     devServer: {
+        https: false,
         proxy: {
             '/api': {
                 target: 'http://mastacos:80', // Use container name!
@@ -15,6 +16,9 @@ module.exports = defineConfig({
         },
         host: '0.0.0.0', // Allow external access
         port: 8080,      // Vue runs on this inside container
+        client: {
+            webSocketURL: 'ws://localhost:8081/ws'
+        }
     },
     configureWebpack: {
         plugins: [
