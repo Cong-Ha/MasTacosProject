@@ -109,6 +109,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
+app.MapGet("/", () => "Health check: API is running");
+
 // Seed users and roles AFTER middleware is configured
 // This ensures the database is available before attempting to seed
 await Task.Run(async () =>
