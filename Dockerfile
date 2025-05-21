@@ -14,8 +14,15 @@ COPY . .
 WORKDIR /app/MasTacos
 RUN dotnet publish -c Release -o /app/publish
 
+# Create the directory Railway expects
+RUN mkdir -p /app/publish
+
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
+
+# Copy published files to the location Railway is looking for
 COPY --from=build /app/publish .
+COPY --from=build /app/publish ./publish/
+
 ENTRYPOINT ["dotnet", "MasTacos.dll"]
