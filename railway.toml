@@ -1,0 +1,12 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "MasTacos/Dockerfile"
+
+[deploy]
+startCommand = "dotnet MasTacos.dll"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+[env]
+ASPNETCORE_ENVIRONMENT = "Production"
+ConnectionStrings__DefaultConnection = "Server=${MYSQLHOST};Port=${MYSQLPORT};Database=${MYSQLDATABASE};User=${MYSQLUSER};Password=${MYSQLPASSWORD};" 
