@@ -24,15 +24,18 @@ if (builder.Environment.IsDevelopment())
 }
 else
 {
-    // In production, only allow GitHub Pages
+    // In production, only allow GitHub Pages and handle Railway's domain
     builder.Services.AddCors(options =>
     {
         options.AddPolicy("AllowAll", policy =>
         {
-            policy.WithOrigins("https://cong-ha.github.io")
-                  .AllowAnyMethod()
-                  .AllowAnyHeader()
-                  .AllowCredentials();
+            policy.WithOrigins(
+                    "https://cong-ha.github.io",
+                    "https://cong-ha-mastacos--80.prod1a.defang.dev"
+                )
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowedToAllowWildcardSubdomains(); // Allow Railway's dynamic subdomains
         });
     });
 }
