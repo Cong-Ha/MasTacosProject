@@ -7,16 +7,35 @@ using Microsoft.IdentityModel.Tokens;
 var builder = WebApplication.CreateBuilder(args);
 // === Add Services ===
 
-// Add CORS with named policy (recommended for maintainability)
-builder.Services.AddCors(options =>
+// Add CORS with environment-specific configuration
+if (builder.Environment.IsDevelopment())
 {
-    options.AddPolicy("AllowAll", policy =>
+    // In development, allow any origin
+    builder.Services.AddCors(options =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+        options.AddPolicy("AllowAll", policy =>
+        {
+            policy.SetIsOriginAllowed(_ => true)
+                  .AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials();
+        });
     });
-});
+}
+else
+{
+    // In production, only allow GitHub Pages
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("AllowAll", policy =>
+        {
+            policy.WithOrigins("https://cong-ha.github.io")
+                  .AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials();
+        });
+    });
+}
 
 // Add controllers and Swagger
 builder.Services.AddControllers();
@@ -25,11 +44,34 @@ builder.Services.AddSwaggerGen();
 
 // Add DB context
 builder.Services.AddDbContext<MasTacos.Data.MasTacosContext>(options =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    // For Railway deployment, construct connection string from environment variables if available
+    if (Environment.GetEnvironmentVariable("MYSQLHOST") != null)
+    {
+        connectionString = $"Server={Environment.GetEnvironmentVariable("MYSQLHOST")};" +
+                         $"Port={Environment.GetEnvironmentVariable("MYSQLPORT")};" +
+                         $"Database={Environment.GetEnvironmentVariable("MYSQLDATABASE")};" +
+                         $"User={Environment.GetEnvironmentVariable("MYSQLUSER")};" +
+                         $"Password={Environment.GetEnvironmentVariable("MYSQLPASSWORD")};";
+    }
+
+    // Use a specific server version instead of auto-detect
+    var serverVersion = new MySqlServerVersion(new Version(8, 0, 0));
+    
     options.UseMySql(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
-    ),
-    ServiceLifetime.Scoped
+        connectionString,
+        serverVersion,
+        mySqlOptions =>
+        {
+            mySqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 10,
+                maxRetryDelay: TimeSpan.FromSeconds(30),
+                errorNumbersToAdd: null);
+        }
+    );
+},
+ServiceLifetime.Scoped
 );
 
 // Add Identity
