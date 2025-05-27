@@ -93,7 +93,7 @@
                         <td>
                             <div class="item-image-preview">
                                 <!-- Using @error to show placeholder if image fails to load -->
-                                <img :src="`/api/MenuItems/${item.itemId}/image`"
+                                <img :src="getImageUrl(item.itemId)"
                                      alt="Menu item thumbnail"
                                      class="img-thumbnail"
                                      style="width: 50px; height: 50px; object-fit: cover;"
@@ -307,7 +307,7 @@
 
                                     <!-- Show existing image if editing and no new image selected -->
                                     <div v-else-if="editingItem.itemId && !imageRemoved" class="image-preview-container mb-2">
-                                        <img :src="`/api/MenuItems/${editingItem.itemId}/image`"
+                                        <img :src="getImageUrl(editingItem.itemId)"
                                              alt="Item preview"
                                              class="img-thumbnail"
                                              style="max-height: 200px; max-width: 100%;"
@@ -468,6 +468,7 @@
     import { useVuelidate } from '@vuelidate/core';
     import { required, minLength, maxLength, minValue } from '@vuelidate/validators';
     import { menuService } from '@/services/menuService';
+    import { API_BASE_URL } from '@/config';
 
     // Initialize store
     const menuItemsStore = useMenuItemsStore();
@@ -507,7 +508,8 @@
         price: 0,
         category: '',
         isActive: true,
-        popularityScore: 50
+        popularityScore: 50,
+        contentType: 'image/jpeg' // Default content type for new items
     });
     const itemToDelete = ref<MenuItem | null>(null);
 
@@ -762,7 +764,8 @@
             price: 0,
             category: '',
             isActive: true,
-            popularityScore: 50
+            popularityScore: 50,
+            contentType: 'image/jpeg' // Default content type for new items
         };
 
         // Reset image state
@@ -817,7 +820,7 @@
             let createdOrUpdatedItem: MenuItem;
 
             if (editingItem.value.itemId === 0) {
-                // Create new menu item
+                // Create new menu item - exclude contentType as it's not part of NewMenuItem
                 const newItemData: NewMenuItem = {
                     name: editingItem.value.name,
                     description: editingItem.value.description,
@@ -911,6 +914,11 @@
     onMounted(() => {
         fetchMenuItems();
     });
+
+    // Function to get image URL
+    const getImageUrl = (itemId: number): string => {
+        return `${API_BASE_URL}/menuItems/${itemId}/image`;
+    };
 </script>
 <style scoped>
     /* Additional custom styles */
