@@ -30,11 +30,7 @@ else
         {
             policy.WithOrigins("https://cong-ha.github.io")
                   .AllowAnyMethod()
-                  .AllowAnyHeader()
-                  .AllowCredentials();
-
-            // Add specific exposed headers if needed
-            policy.WithExposedHeaders("Content-Disposition");
+                  .AllowAnyHeader();
         });
     });
 }
