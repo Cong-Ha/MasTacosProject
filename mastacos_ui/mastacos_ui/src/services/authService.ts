@@ -1,4 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
+import { API_BASE_URL } from '@/config';
 
 // Types
 interface LoginRequest {
@@ -38,8 +39,7 @@ class AuthService {
     private baseURL: string;
 
     constructor() {
-        // Use just /api - the proxy will handle the rest
-        this.baseURL = '/api';
+        this.baseURL = API_BASE_URL;
     }
 
     // Login method
