@@ -57,42 +57,41 @@
         </div>
 
         <!-- Table -->
-        <div v-if="!isLoading && !storeError && storeItems.length > 0" class="table-responsive shadow-4 rounded-5">
+        <div v-if="!isLoading && !storeError && storeItems.length > 0" class="table-responsive-stack shadow-4 rounded-5">
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">Image</th>
-                        <th scope="col">
+                        <th scope="col" data-label="ID">ID</th>
+                        <th scope="col" data-label="Image">Image</th>
+                        <th scope="col" data-label="Name">
                             <div class="d-flex align-items-center">
                                 Name
                                 <i class="fas fa-sort ms-1" @click="sortBy('name')"></i>
                             </div>
                         </th>
-                        <th scope="col">Description</th>
-                        <th scope="col">
+                        <th scope="col" data-label="Description">Description</th>
+                        <th scope="col" data-label="Price">
                             <div class="d-flex align-items-center">
                                 Price
                                 <i class="fas fa-sort ms-1" @click="sortBy('price')"></i>
                             </div>
                         </th>
-                        <th scope="col">Category</th>
-                        <th scope="col">Status</th>
-                        <th scope="col">
+                        <th scope="col" data-label="Category">Category</th>
+                        <th scope="col" data-label="Status">Status</th>
+                        <th scope="col" data-label="Popularity">
                             <div class="d-flex align-items-center">
                                 Popularity
                                 <i class="fas fa-sort ms-1" @click="sortBy('popularityScore')"></i>
                             </div>
                         </th>
-                        <th scope="col">Actions</th>
+                        <th scope="col" data-label="Actions">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="item in filteredItems" :key="item.itemId">
-                        <td>{{ item.itemId }}</td>
-                        <td>
+                        <td data-label="ID">{{ item.itemId }}</td>
+                        <td data-label="Image">
                             <div class="item-image-preview">
-                                <!-- Using @error to show placeholder if image fails to load -->
                                 <img :src="getImageUrl(item.itemId)"
                                      alt="Menu item thumbnail"
                                      class="img-thumbnail"
@@ -100,23 +99,23 @@
                                      @error="displayPlaceholder" />
                             </div>
                         </td>
-                        <td>{{ item.name }}</td>
-                        <td>
+                        <td data-label="Name">{{ item.name }}</td>
+                        <td data-label="Description">
                             <span class="text-truncate d-inline-block" style="max-width: 200px;">
                                 {{ item.description }}
                             </span>
                         </td>
-                        <td>${{ item.price.toFixed(2) }}</td>
-                        <td>
+                        <td data-label="Price">${{ item.price.toFixed(2) }}</td>
+                        <td data-label="Category">
                             <span class="badge rounded-pill bg-info">{{ item.category }}</span>
                         </td>
-                        <td>
+                        <td data-label="Status">
                             <span class="badge rounded-pill"
                                   :class="item.isActive ? 'bg-success' : 'bg-danger'">
                                 {{ item.isActive ? 'Active' : 'Inactive' }}
                             </span>
                         </td>
-                        <td>
+                        <td data-label="Popularity">
                             <div class="d-flex align-items-center">
                                 <span class="me-2">{{ item.popularityScore }}</span>
                                 <div class="progress w-100" style="height: 6px;">
@@ -129,7 +128,7 @@
                                 </div>
                             </div>
                         </td>
-                        <td>
+                        <td data-label="Actions">
                             <div class="btn-group" role="group">
                                 <button type="button"
                                         class="btn btn-sm btn-outline-primary"
@@ -807,6 +806,14 @@
             formError.value = 'Please correct the validation errors before saving.';
             return;
         }
+
+        // Log the current state before saving
+        console.log('Current item state before save:', {
+            id: editingItem.value.itemId,
+            name: editingItem.value.name,
+            isActive: editingItem.value.isActive
+        });
+
         await saveItem();
     };
 
@@ -814,13 +821,11 @@
         formLoading.value = true;
         formError.value = null;
 
-        console.log("Saving item with ID:", editingItem.value.itemId);
-
         try {
             let createdOrUpdatedItem: MenuItem;
 
             if (editingItem.value.itemId === 0) {
-                // Create new menu item - exclude contentType as it's not part of NewMenuItem
+                // Create new menu item
                 const newItemData: NewMenuItem = {
                     name: editingItem.value.name,
                     description: editingItem.value.description,
@@ -834,8 +839,19 @@
                 createdOrUpdatedItem = await menuItemsStore.createMenuItem(newItemData);
             } else {
                 // Update existing menu item
-                console.log("Updating existing item:", editingItem.value);
-                createdOrUpdatedItem = await menuItemsStore.updateMenuItem(editingItem.value);
+                // Create a new object to ensure all properties are included
+                const updatedItem: MenuItem = {
+                    ...editingItem.value,
+                    isActive: editingItem.value.isActive
+                };
+                
+                console.log("Updating existing item:", {
+                    id: updatedItem.itemId,
+                    name: updatedItem.name,
+                    isActive: updatedItem.isActive
+                });
+                
+                createdOrUpdatedItem = await menuItemsStore.updateMenuItem(updatedItem);
             }
 
             // Handle image upload if there's a new image
@@ -844,22 +860,18 @@
                     await menuService.uploadImage(createdOrUpdatedItem.itemId, imageFile.value);
                 } catch (error) {
                     console.error('Error uploading image:', error);
-                    // Don't fail the whole operation if image upload fails
                 }
             } else if (imageRemoved.value) {
-                // If image was removed, delete it
                 try {
                     await menuService.deleteImage(createdOrUpdatedItem.itemId);
                 } catch (error) {
                     console.error('Error deleting image:', error);
-                    // Don't fail the whole operation if image deletion fails
                 }
             }
 
-            // Refresh menu items
+            // Refresh menu items to ensure we have the latest data
             await fetchMenuItems();
-
-            showItemModal.value = false; // Hide the modal
+            showItemModal.value = false;
         } catch (err) {
             formError.value = 'Failed to save menu item. Please try again.';
             console.error('Error saving menu item:', err);
@@ -997,5 +1009,78 @@
     body.modal-open {
         overflow: hidden;
         padding-right: 0 !important;
+    }
+
+    /* Responsive table styles */
+    @media screen and (max-width: 991px) {
+        .table-responsive-stack tr {
+            display: flex;
+            flex-direction: column;
+            border-bottom: 3px solid #ddd;
+            margin-bottom: 1rem;
+        }
+        
+        .table-responsive-stack thead {
+            display: none;
+        }
+        
+        .table-responsive-stack td {
+            display: flex;
+            padding: 1rem 0.75rem;
+            border: none;
+        }
+        
+        .table-responsive-stack td::before {
+            content: attr(data-label);
+            font-weight: bold;
+            min-width: 120px;
+            margin-right: 1rem;
+        }
+        
+        .table-responsive-stack td:not(:last-child) {
+            border-bottom: 1px solid #eee;
+        }
+        
+        /* Adjust specific cell layouts */
+        .table-responsive-stack td[data-label="Actions"] {
+            justify-content: flex-start;
+        }
+        
+        .table-responsive-stack td[data-label="Description"] span {
+            max-width: 100% !important;
+        }
+        
+        .table-responsive-stack td[data-label="Popularity"] .progress {
+            max-width: 200px;
+        }
+        
+        /* Improve spacing and alignment */
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .badge {
+            display: inline-block;
+            min-width: 80px;
+            text-align: center;
+        }
+    }
+
+    /* Improve table shadows and borders */
+    .table-responsive-stack {
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+
+    /* Improve filter section responsiveness */
+    @media screen and (max-width: 767px) {
+        .row.mb-4 > div {
+            margin-bottom: 1rem;
+        }
+        
+        .input-group {
+            margin-bottom: 1rem;
+        }
     }
 </style>

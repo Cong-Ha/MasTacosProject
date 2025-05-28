@@ -115,6 +115,7 @@ namespace MasTacos.Controllers
                 existingMenuItem.Description = menuItem.Description;
                 existingMenuItem.Category = menuItem.Category;
                 existingMenuItem.PopularityScore = menuItem.PopularityScore;
+                existingMenuItem.IsActive = menuItem.IsActive;
                 // Add any other properties that need updating
 
                 if (menuItem.ImageData != null)
