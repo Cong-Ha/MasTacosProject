@@ -62,7 +62,7 @@ const toggleNav = (): void => {
   <MDBNavbar expand="lg" light bg="light" class="shadow-sm">
     <div class="container-fluid">
       <!-- Brand -->
-      <MDBNavbarBrand href="#" @click.prevent="navigateTo('/')" class="fw-bold ms-3">
+      <MDBNavbarBrand href="/MasTacosProject" @click.prevent="navigateTo('/MasTacosProject')" class="fw-bold ms-3">
         <MDBIcon icon="utensils" class="me-2 text-primary" />
         Ma's Tacos
       </MDBNavbarBrand>
