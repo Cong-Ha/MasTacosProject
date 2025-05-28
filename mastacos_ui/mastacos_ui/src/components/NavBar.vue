@@ -4,8 +4,6 @@ import {
   MDBNavbarBrand,
   MDBNavbarNav,
   MDBNavbarItem,
-  MDBNavbarToggler,
-  MDBCollapse,
   MDBIcon,
   MDBSpinner
 } from "mdb-vue-ui-kit";
@@ -68,12 +66,23 @@ const toggleNav = (): void => {
       </MDBNavbarBrand>
 
       <!-- Mobile toggle button -->
-      <MDBNavbarToggler @click="toggleNav" aria-label="Toggle navigation">
-        <MDBIcon icon="bars" />
-      </MDBNavbarToggler>
+      <button
+        class="navbar-toggler"
+        type="button"
+        @click="toggleNav"
+        aria-controls="navbarSupportedContent"
+        :aria-expanded="!isNavCollapsed"
+        aria-label="Toggle navigation"
+      >
+        <i class="fas fa-bars"></i>
+      </button>
 
       <!-- Collapsible content -->
-      <MDBCollapse :show="!isNavCollapsed" navbar>
+      <div
+        class="collapse navbar-collapse"
+        :class="{ show: !isNavCollapsed }"
+        id="navbarSupportedContent"
+      >
         <!-- Loading indicator -->
         <div v-if="isLoading" class="navbar-nav me-auto">
           <div class="nav-item d-flex align-items-center">
@@ -161,7 +170,7 @@ const toggleNav = (): void => {
             </template>
           </MDBNavbarNav>
         </template>
-      </MDBCollapse>
+      </div>
     </div>
   </MDBNavbar>
 </template>
@@ -219,5 +228,25 @@ const toggleNav = (): void => {
   .dropdown-item {
     padding: 0.5rem 1rem;
   }
+}
+
+/* Add transition for mobile menu */
+.navbar-collapse {
+  transition: height 0.3s ease;
+}
+
+.navbar-toggler {
+  padding: 0.25rem 0.75rem;
+  font-size: 1.25rem;
+  line-height: 1;
+  background-color: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 0.25rem;
+  transition: box-shadow 0.15s ease-in-out;
+}
+
+.navbar-toggler:focus {
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 </style>
