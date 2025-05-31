@@ -188,7 +188,7 @@
                                     <span v-if="item.popularityScore >= 80" class="badge bg-danger">Popular</span>
                                 </div>
                             </div>
-                            <div class="card-footer bg-white border-top-0">
+                            <div class="card-footer bg-transparent border-top">
                                 <button class="btn btn-primary w-100" @click="openModal(item)">Add to Order</button>
                             </div>
                         </div>
@@ -207,22 +207,27 @@
 
 <style scoped>
     .menu-container {
-        padding: 2rem 0;
+        padding: 4rem 0 2rem 0; /* Increased top padding to account for fixed navbar */
+        color: #fff;
     }
 
     .menu-header {
-        border-bottom: 1px solid #dee2e6;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         padding-bottom: 1rem;
     }
 
     .menu-item {
         transition: transform 0.3s, box-shadow 0.3s;
+        background-color: rgba(0, 0, 0, 0.7) !important;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
     }
 
-        .menu-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
+    .menu-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        border-color: rgba(255, 255, 255, 0.3) !important;
+    }
 
     .price-badge {
         font-size: 1rem;
@@ -233,10 +238,11 @@
     .card-img-container {
         height: 180px;
         overflow: hidden;
-        background-color: #f8f9fa;
+        background-color: rgba(0, 0, 0, 0.5);
         display: flex;
         justify-content: center;
         align-items: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .menu-item-image {
@@ -256,10 +262,67 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        color: #adb5bd;
+        color: rgba(255, 255, 255, 0.3);
     }
 
-        .menu-item-placeholder i {
-            font-size: 3rem;
-        }
+    .menu-item-placeholder i {
+        font-size: 3rem;
+    }
+
+    /* Category sidebar styles */
+    .list-group-item {
+        background-color: rgba(0, 0, 0, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #fff;
+        transition: all 0.3s ease;
+    }
+
+    .list-group-item:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .list-group-item.active {
+        background-color: rgba(59, 113, 202, 0.8) !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+    }
+
+    /* Card body and footer styles */
+    .card-body {
+        background-color: transparent;
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .card-footer {
+        background-color: transparent !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+        padding: 1rem;
+    }
+
+    /* Badge styles */
+    .badge.bg-light {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        color: #fff !important;
+    }
+
+    .badge.bg-danger {
+        background-color: rgba(220, 53, 69, 0.8) !important;
+    }
+
+    /* Alert styles */
+    .alert {
+        background-color: rgba(0, 0, 0, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #fff;
+        backdrop-filter: blur(10px);
+    }
+
+    .alert-info {
+        background-color: rgba(13, 202, 240, 0.2);
+        border-color: rgba(13, 202, 240, 0.3);
+    }
+
+    .alert-danger {
+        background-color: rgba(220, 53, 69, 0.2);
+        border-color: rgba(220, 53, 69, 0.3);
+    }
 </style>

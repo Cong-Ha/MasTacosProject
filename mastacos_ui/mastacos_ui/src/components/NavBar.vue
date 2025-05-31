@@ -4,8 +4,7 @@ import {
   MDBNavbarBrand,
   MDBNavbarNav,
   MDBNavbarItem,
-  MDBIcon,
-  MDBSpinner
+  MDBIcon
 } from "mdb-vue-ui-kit";
 import { ref, watch } from 'vue';
 import { useAuthStore } from '@/store/auth';
@@ -20,7 +19,6 @@ const isNavCollapsed = ref(true);
 const {
   isAuthenticated,
   user,
-  isLoading,
   userFullName,
   isAdmin
 } = storeToRefs(authStore);
@@ -57,196 +55,185 @@ const toggleNav = (): void => {
 </script>
 
 <template>
-  <MDBNavbar expand="lg" light bg="light" class="shadow-sm">
+  <MDBNavbar dark class="navbar-dark fixed-top">
     <div class="container-fluid">
       <!-- Brand -->
-      <MDBNavbarBrand href="/MasTacosProject" @click.prevent="navigateTo('/MasTacosProject')" class="fw-bold ms-3">
-        <MDBIcon icon="utensils" class="me-2 text-primary" />
+      <MDBNavbarBrand href="#" @click.prevent="navigateTo('/')" class="me-2">
+        <img src="@/assets/logo.png" height="30" alt="Ma's Tacos" class="me-2" />
         Ma's Tacos
       </MDBNavbarBrand>
 
-      <!-- Mobile toggle button -->
+      <!-- Hamburger button -->
       <button
         class="navbar-toggler"
         type="button"
         @click="toggleNav"
-        aria-controls="navbarSupportedContent"
         :aria-expanded="!isNavCollapsed"
-        aria-label="Toggle navigation"
-      >
-        <i class="fas fa-bars"></i>
+        aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
       </button>
 
       <!-- Collapsible content -->
       <div
         class="collapse navbar-collapse"
-        :class="{ show: !isNavCollapsed }"
-        id="navbarSupportedContent"
-      >
-        <!-- Loading indicator -->
-        <div v-if="isLoading" class="navbar-nav me-auto">
-          <div class="nav-item d-flex align-items-center">
-            <MDBSpinner size="sm" role="status" class="me-2"></MDBSpinner>
-            <span class="text-muted">Loading...</span>
-          </div>
-        </div>
+        :class="{ show: !isNavCollapsed }">
+        <MDBNavbarNav class="ms-auto">
+          <!-- Menu Items -->
+          <MDBNavbarItem>
+            <a
+              href="#"
+              class="nav-link"
+              @click.prevent="navigateTo('/menu')"
+              :class="{ active: $route.path === '/menu' }">
+              <MDBIcon icon="utensils" class="me-1" />
+              Menu
+            </a>
+          </MDBNavbarItem>
 
-        <!-- Navigation items -->
-        <template v-else>
-          <!-- Left navigation -->
-          <MDBNavbarNav class="me-auto mb-2 mb-lg-0">
+          <!-- Guest navigation -->
+          <template v-if="!isAuthenticated">
             <MDBNavbarItem>
               <a
-                  href="#"
-                  class="nav-link"
-                  @click.prevent="navigateTo('/')"
-                  :class="{ active: $route.path === '/' }">
-                <MDBIcon icon="home" class="me-1" />
-                Menu
+                href="#"
+                class="nav-link"
+                @click.prevent="navigateTo('/login')"
+                :class="{ active: $route.path === '/login' }">
+                <MDBIcon icon="sign-in-alt" class="me-1" />
+                Login
               </a>
             </MDBNavbarItem>
+          </template>
 
-            <!-- Admin link (only show if user is admin) -->
-            <MDBNavbarItem v-if="isAuthenticated && isAdmin">
+          <!-- Authenticated user navigation -->
+          <template v-else>
+            <!-- Admin link -->
+            <MDBNavbarItem v-if="isAdmin">
               <a
-                  href="#"
-                  class="nav-link"
-                  @click.prevent="navigateTo('/admin')"
-                  :class="{ active: $route.path.startsWith('/admin') }">
-                <MDBIcon icon="cogs" class="me-1" />
+                href="#"
+                class="nav-link"
+                @click.prevent="navigateTo('/admin')"
+                :class="{ active: $route.path === '/admin' }">
+                <MDBIcon icon="cog" class="me-1" />
                 Admin
               </a>
             </MDBNavbarItem>
-          </MDBNavbarNav>
 
-          <!-- Right navigation -->
-          <MDBNavbarNav class="ms-auto">
-            <!-- Guest navigation -->
-            <template v-if="!isAuthenticated">
-              <MDBNavbarItem>
-                <a
-                    href="#"
-                    class="nav-link"
-                    @click.prevent="navigateTo('/login')"
-                    :class="{ active: $route.path === '/login' }">
-                  <MDBIcon icon="sign-in-alt" class="me-1" />
-                  Login
-                </a>
-              </MDBNavbarItem>
-            </template>
+            <!-- User profile link -->
+            <MDBNavbarItem>
+              <a
+                href="#"
+                class="nav-link"
+                @click.prevent="navigateTo('/profile')"
+                :class="{ active: $route.path === '/profile' }">
+                <MDBIcon icon="user-edit" class="me-1" />
+                Profile
+              </a>
+            </MDBNavbarItem>
 
-            <!-- Authenticated user navigation -->
-            <template v-else>
-              <!-- User profile link -->
-              <MDBNavbarItem class="d-none d-md-block">
-                <a
-                    href="#"
-                    class="nav-link"
-                    @click.prevent="navigateTo('/profile')"
-                    :class="{ active: $route.path === '/profile' }">
-                  <MDBIcon icon="user-edit" class="me-1" />
-                  Profile
-                </a>
-              </MDBNavbarItem>
+            <!-- Welcome message -->
+            <MDBNavbarItem>
+              <span class="nav-link">
+                <MDBIcon icon="user" class="me-1" />
+                {{ userFullName || user?.email }}
+              </span>
+            </MDBNavbarItem>
 
-              <!-- Welcome message (using nav-link styling for consistency) -->
-              <MDBNavbarItem class="d-none d-lg-block">
-                <span class="nav-link mb-0">
-                  <MDBIcon icon="user" class="me-1" />
-                  {{ userFullName || user?.email }}
-                </span>
-              </MDBNavbarItem>
-
-              <!-- Logout button (styled as nav-link for consistency) -->
-              <MDBNavbarItem>
-                <a
-                    href="#"
-                    class="nav-link text-danger"
-                    @click.prevent="handleLogout">
-                  <MDBIcon icon="sign-out-alt" class="me-1" />
-                  Logout
-                </a>
-              </MDBNavbarItem>
-            </template>
-          </MDBNavbarNav>
-        </template>
+            <!-- Logout button -->
+            <MDBNavbarItem>
+              <a
+                href="#"
+                class="nav-link text-danger"
+                @click.prevent="handleLogout">
+                <MDBIcon icon="sign-out-alt" class="me-1" />
+                Logout
+              </a>
+            </MDBNavbarItem>
+          </template>
+        </MDBNavbarNav>
       </div>
     </div>
   </MDBNavbar>
+  <!-- Add a spacer div to prevent content from being hidden under the fixed navbar -->
+  <div class="navbar-spacer"></div>
 </template>
 
 <style scoped>
-.navbar-brand {
-  font-size: 1.5rem;
-  transition: color 0.3s ease;
+.navbar {
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  height: 60px; /* Set a fixed height for the navbar */
 }
 
-.navbar-brand:hover {
-  color: var(--mdb-primary) !important;
+/* Add spacer to prevent content from being hidden */
+.navbar-spacer {
+  height: 60px; /* Match the navbar height */
+  width: 100%;
+}
+
+.navbar-brand {
+  color: #fff;
+  font-weight: 600;
 }
 
 .nav-link {
+  color: rgba(255, 255, 255, 0.8);
   transition: all 0.3s ease;
-  border-radius: 5px;
-  margin: 0 2px;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
 }
 
-.nav-link:hover {
-  background-color: rgba(0, 123, 255, 0.1);
-}
-
+.nav-link:hover,
 .nav-link.active {
-  color: var(--mdb-primary) !important;
-  font-weight: 500;
-  background-color: rgba(0, 123, 255, 0.1);
-}
-
-.dropdown-toggle::after {
-  margin-left: 0.5rem;
-}
-
-.dropdown-item {
-  transition: background-color 0.3s ease;
-}
-
-.dropdown-item:hover {
-  background-color: rgba(0, 123, 255, 0.1);
-}
-
-/* Mobile-specific styles */
-@media (max-width: 991.98px) {
-  .navbar-nav {
-    text-align: center;
-  }
-
-  .dropdown-menu {
-    border: none;
-    box-shadow: none;
-    background-color: transparent;
-  }
-
-  .dropdown-item {
-    padding: 0.5rem 1rem;
-  }
-}
-
-/* Add transition for mobile menu */
-.navbar-collapse {
-  transition: height 0.3s ease;
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .navbar-toggler {
-  padding: 0.25rem 0.75rem;
-  font-size: 1.25rem;
-  line-height: 1;
-  background-color: transparent;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 0.25rem;
-  transition: box-shadow 0.15s ease-in-out;
+  display: block;
+  border-color: rgba(255, 255, 255, 0.1);
+  padding: 0.25rem 0.5rem;
 }
 
 .navbar-toggler:focus {
-  outline: 0;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.1);
+}
+
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255, 0.8)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* Animation for mobile menu */
+.navbar-collapse {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: 0;
+  transition: all 0.3s ease;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.navbar-collapse.show {
+  background-color: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin: 0.5rem;
+}
+
+/* Remove media query styles that were specific to mobile */
+.nav-link {
+  padding: 0.5rem 1rem;
+  margin: 0.25rem 0;
+  text-align: left;
+  display: flex;
+  align-items: center;
+}
+
+.container-fluid {
+  padding-right: 1rem;
+  padding-left: 1rem;
 }
 </style>

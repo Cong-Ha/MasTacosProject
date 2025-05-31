@@ -15,10 +15,6 @@ import { useRouter, useRoute, RouteLocationNormalizedLoaded } from 'vue-router';
 import { useAuthStore } from '@/store/auth';
 import { AxiosError } from 'axios';
 
-// interface ValidationErrors {
-//   [key: string]: string[];
-// }
-
 const router = useRouter();
 const route: RouteLocationNormalizedLoaded = useRoute();
 const authStore = useAuthStore();
@@ -104,7 +100,7 @@ const goToRegister = (): void => {
 <template>
   <div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
     <MDBCard style="max-width: 400px; width: 100%;">
-      <MDBCardBody>
+      <MDBCardBody class="border">
         <MDBCardTitle class="text-center mb-4">
           <MDBIcon far icon="user-circle" size="3x" class="mb-3"></MDBIcon>
           <h4 class="fw-bold">Login</h4>
@@ -170,5 +166,99 @@ a {
 a:hover {
   color: #2e5aa5;
   cursor: pointer;
+}
+
+/* Custom field error styling - works better with MDB */
+.field-error {
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 0.875em;
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+}
+
+.error-item {
+  margin-bottom: 0.25rem;
+}
+
+.error-item:last-child {
+  margin-bottom: 0;
+}
+
+/* Dark theme form styles */
+:deep(.form-outline) {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 0.25rem;
+}
+
+:deep(.form-outline .form-control) {
+  color: #fff;
+  background-color: transparent;
+}
+
+:deep(.form-outline .form-control:focus) {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+}
+
+:deep(.form-outline .form-label) {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+:deep(.form-outline .form-control:focus ~ .form-label),
+:deep(.form-outline .form-control.active ~ .form-label),
+:deep(.form-outline .form-control:not(:placeholder-shown) ~ .form-label) {
+  color: #fff;
+}
+
+:deep(.form-outline .form-notch-leading),
+:deep(.form-outline .form-notch-middle),
+:deep(.form-outline .form-notch-trailing) {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+:deep(.form-outline .form-control:focus ~ .form-notch .form-notch-leading),
+:deep(.form-outline .form-control:focus ~ .form-notch .form-notch-middle),
+:deep(.form-outline .form-control:focus ~ .form-notch .form-notch-trailing) {
+  border-color: rgba(255, 255, 255, 0.4);
+  border-width: 2px;
+}
+
+/* Form text and helper text */
+.form-text {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Error state */
+:deep(.form-outline.field-error .form-control) {
+  border-color: #dc3545;
+}
+
+:deep(.form-outline.field-error .form-label) {
+  color: #dc3545;
+}
+
+:deep(.form-outline.field-error .form-notch-leading),
+:deep(.form-outline.field-error .form-notch-middle),
+:deep(.form-outline.field-error .form-notch-trailing) {
+  border-color: #dc3545;
+}
+
+/* Checkbox styles */
+:deep(.form-check-input) {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+:deep(.form-check-input:checked) {
+  background-color: #3b71ca;
+  border-color: #3b71ca;
+}
+
+:deep(.form-check-label) {
+  color: rgba(255, 255, 255, 0.8);
 }
 </style>

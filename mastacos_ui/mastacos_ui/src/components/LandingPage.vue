@@ -5,7 +5,7 @@
             <div class="container">
                 <h1 class="display-3 mb-4">Welcome to Ma's Tacos</h1>
                 <p class="lead mb-5">Authentic Mexican cuisine made with love and tradition</p>
-                <router-link to="/" class="btn btn-light btn-lg">
+                <router-link to="/menu" class="btn btn-light btn-lg">
                     <i class="fas fa-utensils me-2"></i>View Our Menu
                 </router-link>
             </div>
@@ -26,7 +26,7 @@
         </div>
 
         <!-- Features Section -->
-        <div class="bg-light py-5">
+        <div class="py-5">
             <div class="container">
                 <div class="row g-4">
                     <div class="col-md-4">
@@ -95,7 +95,7 @@
         </div>
 
         <!-- Contact Section -->
-        <div class="bg-light py-5">
+        <div class="py-5">
             <div class="container">
                 <div class="row justify-content-center">
                     <div class="col-md-8 text-center">
@@ -132,10 +132,11 @@
 <style scoped>
 .landing-page {
     overflow-x: hidden;
+    color: #fff;
 }
 
 .hero-section {
-    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
                 url('https://images.unsplash.com/photo-1565299585323-38d6b0865b47?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
     background-size: cover;
     background-position: center;
@@ -143,26 +144,54 @@
     position: relative;
 }
 
+.about-section {
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 2rem;
+    margin: 2rem 0;
+}
+
 .about-image {
     background: url('https://images.unsplash.com/photo-1552332386-f8dd00dc2f85?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
     background-size: cover;
     background-position: center;
     height: 400px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.features-section {
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    padding: 4rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.card {
+    background-color: rgba(0, 0, 0, 0.7) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(255, 255, 255, 0.3) !important;
 }
 
 .menu-item-card {
-    transition: transform 0.3s ease;
     height: 100%;
-}
-
-.menu-item-card:hover {
-    transform: translateY(-5px);
 }
 
 .menu-item-image {
     height: 200px;
     background-size: cover;
     background-position: center;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
 }
 
 .menu-item-image.tacos {
@@ -175,6 +204,31 @@
 
 .menu-item-image.burrito {
     background-image: url('https://images.unsplash.com/photo-1626700051175-6818013e1d4f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+}
+
+.contact-section {
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    padding: 4rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.text-primary {
+    color: #3b71ca !important;
+}
+
+.btn-light {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+}
+
+.btn-light:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: #fff;
 }
 
 .shadow-2 {

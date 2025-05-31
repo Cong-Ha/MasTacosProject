@@ -933,154 +933,313 @@
     };
 </script>
 <style scoped>
-    /* Additional custom styles */
-    .image-preview-container {
-        position: relative;
-        display: inline-block;
-    }
+.container {
+    color: #fff;
+}
 
-    .table-responsive {
-        overflow-x: auto;
-    }
+/* Form controls */
+.form-control, .form-select {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
 
-    .fas.fa-sort {
-        cursor: pointer;
-        opacity: 0.5;
-    }
+.form-control:focus, .form-select:focus {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #fff;
+    box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.1);
+}
 
-        .fas.fa-sort:hover {
-            opacity: 1;
-        }
+.form-control::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
 
-    .shadow-4 {
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-    }
+.input-group-text {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
 
-    .rounded-5 {
-        border-radius: 0.5rem;
-    }
+/* Table styles */
+.table {
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.1);
+}
 
-    /* Validation error styles */
-    .error-container {
-        min-height: 24px; /* Reserve space for error messages */
-    }
+.table th {
+    background-color: rgba(0, 0, 0, 0.5);
+    border-color: rgba(255, 255, 255, 0.1);
+}
 
-    .is-invalid {
-        border-color: #dc3545;
-    }
+.table td {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.1);
+}
 
-    /* Image styles */
-    .item-image-preview {
-        width: 50px;
-        height: 50px;
-        overflow: hidden;
-        border-radius: 4px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background-color: #f8f9fa;
-    }
+.table tbody tr:hover td {
+    background-color: rgba(255, 255, 255, 0.1);
+}
 
-        .item-image-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+/* Card styles */
+.card {
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
 
-    /* Modal styles */
-    .modal.fade.show {
+.card-body {
+    color: #fff;
+}
+
+/* Modal styles */
+.modal-content {
+    background-color: rgba(0, 0, 0, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    backdrop-filter: blur(10px);
+}
+
+.modal-header, .modal-footer {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Badge styles */
+.badge {
+    backdrop-filter: blur(5px);
+}
+
+.badge.bg-info {
+    background-color: rgba(13, 202, 240, 0.8) !important;
+}
+
+.badge.bg-success {
+    background-color: rgba(25, 135, 84, 0.8) !important;
+}
+
+.badge.bg-danger {
+    background-color: rgba(220, 53, 69, 0.8) !important;
+}
+
+/* Button styles */
+.btn-outline-primary {
+    color: #fff;
+    border-color: rgba(59, 113, 202, 0.5);
+}
+
+.btn-outline-primary:hover {
+    background-color: rgba(59, 113, 202, 0.2);
+    border-color: rgba(59, 113, 202, 0.8);
+}
+
+.btn-outline-danger {
+    color: #fff;
+    border-color: rgba(220, 53, 69, 0.5);
+}
+
+.btn-outline-danger:hover {
+    background-color: rgba(220, 53, 69, 0.2);
+    border-color: rgba(220, 53, 69, 0.8);
+}
+
+.btn-outline-warning {
+    color: #fff;
+    border-color: rgba(255, 193, 7, 0.5);
+}
+
+.btn-outline-warning:hover {
+    background-color: rgba(255, 193, 7, 0.2);
+    border-color: rgba(255, 193, 7, 0.8);
+    color: #fff;
+}
+
+.btn-outline-success {
+    color: #fff;
+    border-color: rgba(25, 135, 84, 0.5);
+}
+
+.btn-outline-success:hover {
+    background-color: rgba(25, 135, 84, 0.2);
+    border-color: rgba(25, 135, 84, 0.8);
+}
+
+/* Image preview styles */
+.img-thumbnail {
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Alert styles */
+.alert {
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    backdrop-filter: blur(10px);
+}
+
+.alert-danger {
+    background-color: rgba(220, 53, 69, 0.2);
+    border-color: rgba(220, 53, 69, 0.3);
+}
+
+/* Modal backdrop */
+.modal-backdrop.show {
+    opacity: 0.8;
+    backdrop-filter: blur(5px);
+}
+
+/* Additional custom styles */
+.image-preview-container {
+    position: relative;
+    display: inline-block;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.fas.fa-sort {
+    cursor: pointer;
+    opacity: 0.5;
+}
+
+    .fas.fa-sort:hover {
         opacity: 1;
     }
 
-    .modal-backdrop.fade.show {
-        opacity: 0.5;
+.shadow-4 {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.rounded-5 {
+    border-radius: 0.5rem;
+}
+
+/* Validation error styles */
+.error-container {
+    min-height: 24px; /* Reserve space for error messages */
+}
+
+.is-invalid {
+    border-color: #dc3545;
+}
+
+/* Image styles */
+.item-image-preview {
+    width: 50px;
+    height: 50px;
+    overflow: hidden;
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f8f9fa;
+}
+
+    .item-image-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 
-    /* Make sure the modal backdrop is behind the modal */
-    .modal-backdrop {
-        z-index: 1040;
-    }
+/* Modal styles */
+.modal.fade.show {
+    opacity: 1;
+}
 
-    .modal {
-        z-index: 1050;
-    }
+.modal-backdrop.fade.show {
+    opacity: 0.5;
+}
 
-    /* Override body padding-right that Bootstrap adds */
-    body.modal-open {
-        overflow: hidden;
-        padding-right: 0 !important;
-    }
+/* Make sure the modal backdrop is behind the modal */
+.modal-backdrop {
+    z-index: 1040;
+}
 
-    /* Responsive table styles */
-    @media screen and (max-width: 991px) {
-        .table-responsive-stack tr {
-            display: flex;
-            flex-direction: column;
-            border-bottom: 3px solid #ddd;
-            margin-bottom: 1rem;
-        }
-        
-        .table-responsive-stack thead {
-            display: none;
-        }
-        
-        .table-responsive-stack td {
-            display: flex;
-            padding: 1rem 0.75rem;
-            border: none;
-        }
-        
-        .table-responsive-stack td::before {
-            content: attr(data-label);
-            font-weight: bold;
-            min-width: 120px;
-            margin-right: 1rem;
-        }
-        
-        .table-responsive-stack td:not(:last-child) {
-            border-bottom: 1px solid #eee;
-        }
-        
-        /* Adjust specific cell layouts */
-        .table-responsive-stack td[data-label="Actions"] {
-            justify-content: flex-start;
-        }
-        
-        .table-responsive-stack td[data-label="Description"] span {
-            max-width: 100% !important;
-        }
-        
-        .table-responsive-stack td[data-label="Popularity"] .progress {
-            max-width: 200px;
-        }
-        
-        /* Improve spacing and alignment */
-        .btn-group {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .badge {
-            display: inline-block;
-            min-width: 80px;
-            text-align: center;
-        }
-    }
+.modal {
+    z-index: 1050;
+}
 
-    /* Improve table shadows and borders */
-    .table-responsive-stack {
-        border-radius: 0.5rem;
-        overflow: hidden;
-    }
+/* Override body padding-right that Bootstrap adds */
+body.modal-open {
+    overflow: hidden;
+    padding-right: 0 !important;
+}
 
-    /* Improve filter section responsiveness */
-    @media screen and (max-width: 767px) {
-        .row.mb-4 > div {
-            margin-bottom: 1rem;
-        }
-        
-        .input-group {
-            margin-bottom: 1rem;
-        }
+/* Responsive table styles */
+@media screen and (max-width: 991px) {
+    .table-responsive-stack tr {
+        display: flex;
+        flex-direction: column;
+        border-bottom: 3px solid #ddd;
+        margin-bottom: 1rem;
     }
+    
+    .table-responsive-stack thead {
+        display: none;
+    }
+    
+    .table-responsive-stack td {
+        display: flex;
+        padding: 1rem 0.75rem;
+        border: none;
+    }
+    
+    .table-responsive-stack td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        min-width: 120px;
+        margin-right: 1rem;
+    }
+    
+    .table-responsive-stack td:not(:last-child) {
+        border-bottom: 1px solid #eee;
+    }
+    
+    /* Adjust specific cell layouts */
+    .table-responsive-stack td[data-label="Actions"] {
+        justify-content: flex-start;
+    }
+    
+    .table-responsive-stack td[data-label="Description"] span {
+        max-width: 100% !important;
+    }
+    
+    .table-responsive-stack td[data-label="Popularity"] .progress {
+        max-width: 200px;
+    }
+    
+    /* Improve spacing and alignment */
+    .btn-group {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .badge {
+        display: inline-block;
+        min-width: 80px;
+        text-align: center;
+    }
+}
+
+/* Improve table shadows and borders */
+.table-responsive-stack {
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+/* Improve filter section responsiveness */
+@media screen and (max-width: 767px) {
+    .row.mb-4 > div {
+        margin-bottom: 1rem;
+    }
+    
+    .input-group {
+        margin-bottom: 1rem;
+    }
+}
 </style>

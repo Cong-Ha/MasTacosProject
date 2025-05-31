@@ -4,13 +4,18 @@ import { authGuard, guestGuard, adminGuard } from '@/guards/authGuards'
 
 const routes: Array<RouteRecordRaw> = [
     {
-        path: '/MasTacosProject',
-        name: 'Landing',
+        path: '/',
+        name: 'Home',
         component: () => import('../components/LandingPage.vue')
     },
     {
-        path: '/',
-        name: 'Home',
+        path: '/MasTacosProject',
+        name: 'GithubPages',
+        component: () => import('../components/LandingPage.vue')
+    },
+    {
+        path: '/menu',
+        name: 'Menu',
         component: MenuItemsList  // Directly imported home page
     },
     {
