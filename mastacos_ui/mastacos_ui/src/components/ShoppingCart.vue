@@ -46,9 +46,9 @@ const removeItem = (index: number) => {
     </button>
 
     <div class="cart-dropdown" :class="{ show: isCartOpen }">
-      <div class="cart-header">
+      <div class="cart-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Your Order</h5>
-        <button class="btn-close" @click="isCartOpen = false"></button>
+        <button type="button" class="btn-close" @click="isCartOpen = false"></button>
       </div>
 
       <div v-if="cartItems.length === 0" class="empty-cart">
@@ -60,30 +60,33 @@ const removeItem = (index: number) => {
         <div v-for="(item, index) in cartItems"
              :key="index"
              class="cart-item">
-          <div class="item-details">
-            <h6 class="item-name">{{ item.menuItem.name }}</h6>
-            <div class="item-meta">
-              <span class="item-quantity">{{ item.quantity }}x</span>
-              <span class="item-price">${{ (item.menuItem.price * item.quantity).toFixed(2) }}</span>
+          <div class="cart-item-details">
+            <h6 class="cart-item-name">{{ item.menuItem.name }}</h6>
+            <div class="d-flex justify-content-between">
+              <span class="cart-item-quantity">Qty: {{ item.quantity }}</span>
+              <span class="cart-item-price">${{ (item.menuItem.price * item.quantity).toFixed(2) }}</span>
             </div>
-            <small v-if="item.specialInstructions" class="item-instructions">
+            <small v-if="item.specialInstructions" class="text-muted d-block mt-1">
               {{ item.specialInstructions }}
             </small>
           </div>
-          <button class="btn btn-sm text-danger"
+          <button type="button" 
+                  class="btn btn-sm text-danger"
                   title="Remove item"
                   @click="removeItem(index)">
-            <i class="fas fa-trash"></i>
+            <i class="fas fa-trash-alt"></i>
           </button>
         </div>
       </div>
 
       <div v-if="cartItems.length > 0" class="cart-footer">
-        <div class="d-flex justify-content-between mb-3">
-          <span>Subtotal:</span>
-          <span class="fw-bold">${{ subtotal.toFixed(2) }}</span>
+        <div class="d-flex justify-content-between align-items-center w-100">
+          <div class="cart-total">
+            <span class="me-2">Total:</span>
+            <span class="fw-bold">${{ subtotal.toFixed(2) }}</span>
+          </div>
+          <button class="btn btn-primary">Checkout</button>
         </div>
-        <button class="btn btn-primary w-100">Checkout</button>
       </div>
     </div>
 
@@ -97,63 +100,66 @@ const removeItem = (index: number) => {
 <style scoped>
 .shopping-cart {
   position: relative;
+  z-index: 1000;
 }
 
 .cart-button {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background-color: #fff;
-  border: 1px solid #dee2e6;
-  color: #495057;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  position: relative;
-  transition: all 0.3s;
+  background-color: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
   cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
 }
 
 .cart-button:hover {
-  background-color: #f8f9fa;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .cart-button.has-items {
-  background-color: #007bff;
-  color: white;
-  border-color: #007bff;
+  background-color: rgba(59, 113, 202, 0.8);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.cart-button.has-items:hover {
+  background-color: rgba(59, 113, 202, 1);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 .cart-count {
   position: absolute;
-  top: -5px;
-  right: -5px;
-  background-color: #dc3545;
+  top: -8px;
+  right: -8px;
+  background-color: rgba(220, 53, 69, 0.9);
   color: white;
   border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  min-width: 1.5rem;
+  text-align: center;
+  border: 2px solid rgba(0, 0, 0, 0.8);
 }
 
 .cart-dropdown {
   position: absolute;
   top: 100%;
   right: 0;
-  margin-top: 10px;
-  width: 320px;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-  z-index: 1000;
+  margin-top: 0.5rem;
+  min-width: 300px;
+  background-color: rgba(0, 0, 0, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  color: #fff;
   opacity: 0;
   visibility: hidden;
   transform: translateY(10px);
-  transition: all 0.3s;
+  transition: all 0.3s ease;
+  z-index: 1000;
 }
 
 .cart-dropdown.show {
@@ -164,66 +170,102 @@ const removeItem = (index: number) => {
 
 .cart-header {
   padding: 1rem;
-  border-bottom: 1px solid #e9ecef;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-weight: bold;
 }
 
 .cart-items {
   max-height: 300px;
   overflow-y: auto;
-  padding: 1rem;
 }
 
 .cart-item {
-  padding: 0.75rem 0;
-  border-bottom: 1px solid #e9ecef;
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
 }
 
 .cart-item:last-child {
   border-bottom: none;
 }
 
-.item-details {
-  flex: 1;
+.cart-item-details {
+  flex-grow: 1;
+  margin-right: 1rem;
 }
 
-.item-name {
+.cart-item-name {
+  font-weight: 500;
   margin-bottom: 0.25rem;
 }
 
-.item-meta {
-  display: flex;
-  justify-content: space-between;
-  color: #6c757d;
+.cart-item-price {
+  color: rgba(255, 255, 255, 0.7);
   font-size: 0.9rem;
 }
 
-.item-instructions {
-  display: block;
-  color: #6c757d;
-  font-style: italic;
-  margin-top: 0.25rem;
+.btn.text-danger {
+  color: rgba(220, 53, 69, 0.8) !important;
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.btn.text-danger:hover {
+  color: rgba(220, 53, 69, 1) !important;
+}
+
+.btn.text-danger i {
+  font-size: 1rem;
+}
+
+.cart-footer {
+  padding: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+}
+
+.cart-total {
+  font-weight: bold;
+}
+
+/* Scrollbar styles */
+.cart-items::-webkit-scrollbar {
+  width: 6px;
+}
+
+.cart-items::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.cart-items::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.cart-items::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.4);
 }
 
 .empty-cart {
   padding: 2rem;
   text-align: center;
-  color: #6c757d;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .empty-cart i {
   font-size: 2rem;
-  margin-bottom: 0.5rem;
-}
-
-.cart-footer {
-  padding: 1rem;
-  border-top: 1px solid #e9ecef;
+  margin-bottom: 1rem;
+  opacity: 0.5;
 }
 
 .cart-backdrop {
@@ -233,5 +275,34 @@ const removeItem = (index: number) => {
   bottom: 0;
   left: 0;
   z-index: 990;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(3px);
+}
+
+.btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.btn-close:hover {
+  opacity: 1;
+}
+
+.cart-item-quantity {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+}
+
+/* Checkout button styles */
+.btn-primary {
+  background-color: rgba(59, 113, 202, 0.8);
+  border-color: rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: rgba(59, 113, 202, 1);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 </style>

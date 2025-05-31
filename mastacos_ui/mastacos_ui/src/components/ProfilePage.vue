@@ -8,13 +8,13 @@ import {
   MDBRow,
   MDBCol,
   MDBIcon,
-  MDBBadge,
-  MDBSpinner
+  MDBSpinner,
+  MDBBadge
 } from "mdb-vue-ui-kit";
 import { ref, onMounted } from 'vue';
 import { useAuth } from '@/store/auth';
 
-const { user, userFullName, userEmail, userRoles, isLoading } = useAuth();
+const { user, isLoading, userRoles } = useAuth();
 
 // Form data
 const firstName = ref<string>('');
@@ -89,30 +89,9 @@ const getRoleBadgeColor = (role: string): string => {
 </script>
 
 <template>
-  <div class="container py-5">
-    <div class="row justify-content-center">
-      <div class="col-lg-8 col-xl-6">
-        <!-- Profile Header -->
-        <MDBCard class="mb-4">
-          <MDBCardBody class="text-center">
-            <div class="mb-3">
-              <MDBIcon icon="user-circle" size="4x" class="text-primary"></MDBIcon>
-            </div>
-            <h4 class="mb-2">{{ userFullName || 'User Profile' }}</h4>
-            <p class="text-muted mb-3">{{ userEmail }}</p>
-            <div class="d-flex justify-content-center gap-2 flex-wrap">
-              <MDBBadge
-                  v-for="role in userRoles"
-                  :key="role"
-                  :color="getRoleBadgeColor(role)"
-                  pill>
-                {{ role }}
-              </MDBBadge>
-            </div>
-          </MDBCardBody>
-        </MDBCard>
-
-        <!-- Profile Form -->
+  <div class="container my-5">
+    <div class="row">
+      <div class="col-md-8 mx-auto border">
         <MDBCard>
           <MDBCardBody>
             <div class="d-flex justify-content-between align-items-center mb-4">
@@ -120,14 +99,28 @@ const getRoleBadgeColor = (role: string): string => {
                 <MDBIcon icon="user-edit" class="me-2"></MDBIcon>
                 Personal Information
               </MDBCardTitle>
-              <MDBBtn
-                  v-if="!isEditing"
-                  color="primary"
-                  size="sm"
-                  @click="toggleEdit">
-                <MDBIcon icon="edit" class="me-1"></MDBIcon>
-                Edit
-              </MDBBtn>
+              <div class="d-flex align-items-center">
+                <!-- Role badges -->
+                <div class="me-3">
+                  <MDBBadge
+                      v-for="role in userRoles"
+                      :key="role"
+                      :color="getRoleBadgeColor(role)"
+                      class="me-1"
+                      pill>
+                    {{ role }}
+                  </MDBBadge>
+                </div>
+                <!-- Edit button -->
+                <MDBBtn
+                    v-if="!isEditing"
+                    color="primary"
+                    size="sm"
+                    @click="toggleEdit">
+                  <MDBIcon icon="edit" class="me-1"></MDBIcon>
+                  Edit
+                </MDBBtn>
+              </div>
             </div>
 
             <div v-if="successMessage" class="alert alert-success mb-4">
@@ -185,7 +178,7 @@ const getRoleBadgeColor = (role: string): string => {
               <div v-if="isEditing" class="d-flex gap-3 justify-content-end">
                 <MDBBtn
                     color="secondary"
-                    outline
+                    outline="true"
                     @click="toggleEdit"
                     :disabled="isSaving">
                   Cancel
@@ -217,15 +210,15 @@ const getRoleBadgeColor = (role: string): string => {
             </MDBCardTitle>
 
             <div class="d-grid gap-3">
-              <MDBBtn color="warning" outline>
+              <MDBBtn color="warning" outline="true">
                 <MDBIcon icon="key" class="me-2"></MDBIcon>
                 Change Password
               </MDBBtn>
-              <MDBBtn color="info" outline>
+              <MDBBtn color="info" outline="true">
                 <MDBIcon icon="bell" class="me-2"></MDBIcon>
                 Notification Preferences
               </MDBBtn>
-              <MDBBtn color="danger" outline>
+              <MDBBtn color="danger" outline="true">
                 <MDBIcon icon="user-times" class="me-2"></MDBIcon>
                 Delete Account
               </MDBBtn>
@@ -248,6 +241,65 @@ const getRoleBadgeColor = (role: string): string => {
 
 .d-grid {
   display: grid;
+}
+
+/* Dark theme form styles */
+:deep(.form-outline) {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 0.25rem;
+}
+
+:deep(.form-outline .form-control) {
+  color: #fff;
+  background-color: transparent;
+}
+
+:deep(.form-outline .form-control:focus) {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+}
+
+:deep(.form-outline .form-label) {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+:deep(.form-outline .form-control:focus ~ .form-label),
+:deep(.form-outline .form-control.active ~ .form-label),
+:deep(.form-outline .form-control:not(:placeholder-shown) ~ .form-label) {
+  color: #fff;
+}
+
+:deep(.form-outline .form-notch-leading),
+:deep(.form-outline .form-notch-middle),
+:deep(.form-outline .form-notch-trailing) {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+:deep(.form-outline .form-control:focus ~ .form-notch .form-notch-leading),
+:deep(.form-outline .form-control:focus ~ .form-notch .form-notch-middle),
+:deep(.form-outline .form-control:focus ~ .form-notch .form-notch-trailing) {
+  border-color: rgba(255, 255, 255, 0.4);
+  border-width: 2px;
+}
+
+/* Form text and helper text */
+.form-text {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Disabled state */
+:deep(.form-outline .form-control:disabled) {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+:deep(.form-outline .form-control:disabled ~ .form-label) {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Badge styles */
+:deep(.badge) {
+  font-size: 0.8rem;
+  padding: 0.35rem 0.65rem;
 }
 
 @media (max-width: 576px) {

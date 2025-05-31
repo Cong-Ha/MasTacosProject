@@ -170,7 +170,7 @@ const goToLogin = (): void => {
 <template>
   <div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
     <MDBCard style="max-width: 500px; width: 100%;">
-      <MDBCardBody>
+      <MDBCardBody class="border">
         <MDBCardTitle class="text-center mb-4">
           <MDBIcon far icon="user-plus" size="3x" class="mb-3"></MDBIcon>
           <h4 class="fw-bold">Create Account</h4>
@@ -317,19 +317,61 @@ a:hover {
   margin-bottom: 0;
 }
 
-/* Ensure proper spacing between form groups */
-.mb-4 {
-  margin-bottom: 1.5rem !important;
+/* Dark theme form styles */
+:deep(.form-outline) {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 0.25rem;
 }
 
-/* Override any conflicting MDB styles */
-.form-control:focus {
-  border-color: #86b7fe;
-  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+:deep(.form-outline .form-control) {
+  color: #fff;
+  background-color: transparent;
 }
 
-.field-error:focus {
-  border-color: #dc3545 !important;
-  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+:deep(.form-outline .form-control:focus) {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+}
+
+:deep(.form-outline .form-label) {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+:deep(.form-outline .form-control:focus ~ .form-label),
+:deep(.form-outline .form-control.active ~ .form-label),
+:deep(.form-outline .form-control:not(:placeholder-shown) ~ .form-label) {
+  color: #fff;
+}
+
+:deep(.form-outline .form-notch-leading),
+:deep(.form-outline .form-notch-middle),
+:deep(.form-outline .form-notch-trailing) {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+:deep(.form-outline .form-control:focus ~ .form-notch .form-notch-leading),
+:deep(.form-outline .form-control:focus ~ .form-notch .form-notch-middle),
+:deep(.form-outline .form-control:focus ~ .form-notch .form-notch-trailing) {
+  border-color: rgba(255, 255, 255, 0.4);
+  border-width: 2px;
+}
+
+/* Form text and helper text */
+.form-text {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Error state */
+:deep(.form-outline.field-error .form-control) {
+  border-color: #dc3545;
+}
+
+:deep(.form-outline.field-error .form-label) {
+  color: #dc3545;
+}
+
+:deep(.form-outline.field-error .form-notch-leading),
+:deep(.form-outline.field-error .form-notch-middle),
+:deep(.form-outline.field-error .form-notch-trailing) {
+  border-color: #dc3545;
 }
 </style>
