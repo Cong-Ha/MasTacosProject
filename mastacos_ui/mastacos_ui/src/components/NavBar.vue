@@ -55,7 +55,7 @@ const toggleNav = (): void => {
 </script>
 
 <template>
-  <MDBNavbar dark class="navbar-dark fixed-top">
+  <MDBNavbar dark class="navbar-dark fixed-top border">
     <div class="container-fluid">
       <!-- Brand -->
       <MDBNavbarBrand href="#" @click.prevent="navigateTo('/')" class="me-2">
@@ -154,7 +154,7 @@ const toggleNav = (): void => {
     </div>
   </MDBNavbar>
   <!-- Add a spacer div to prevent content from being hidden under the fixed navbar -->
-  <div class="navbar-spacer"></div>
+  <div class="navbar-spacer mb-3"></div>
 </template>
 
 <style scoped>

@@ -4,7 +4,7 @@
     <NavBar />
 
     <!-- Main Content -->
-    <div class="container-fluid">
+    <div class="container-fluid container border">
       <router-view />
     </div>
   </div>
