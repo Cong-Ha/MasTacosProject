@@ -38,7 +38,7 @@ const removeItem = (index: number) => {
 
 <template>
   <div class="shopping-cart">
-    <button class="cart-button"
+    <button class="cart-button m-4"
             @click="isCartOpen = !isCartOpen"
             :class="{ 'has-items': cartItems.length > 0 }">
       <i class="fas fa-shopping-cart"></i>
@@ -107,11 +107,15 @@ const removeItem = (index: number) => {
   background-color: rgba(0, 0, 0, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #fff;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1.5rem;
   border-radius: 2rem;
   cursor: pointer;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .cart-button:hover {
@@ -129,18 +133,27 @@ const removeItem = (index: number) => {
   border-color: rgba(255, 255, 255, 0.4);
 }
 
+.cart-button i {
+  font-size: 1.5rem;
+}
+
 .cart-count {
   position: absolute;
-  top: -8px;
-  right: -8px;
+  top: -10px;
+  right: -10px;
   background-color: rgba(220, 53, 69, 0.9);
   color: white;
   border-radius: 50%;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
-  min-width: 1.5rem;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.9rem;
+  min-width: 1.8rem;
+  min-height: 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   border: 2px solid rgba(0, 0, 0, 0.8);
+  font-weight: bold;
 }
 
 .cart-dropdown {
@@ -304,5 +317,24 @@ const removeItem = (index: number) => {
 .btn-primary:hover {
   background-color: rgba(59, 113, 202, 1);
   border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Add responsive adjustments */
+@media (max-width: 767px) {
+  .cart-button {
+    padding: 0.6rem 1.2rem;
+    font-size: 1.1rem;
+  }
+
+  .cart-button i {
+    font-size: 1.3rem;
+  }
+
+  .cart-count {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+    min-width: 1.6rem;
+    min-height: 1.6rem;
+  }
 }
 </style>
