@@ -7,7 +7,10 @@
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "deploy": "gh-pages -d dist",
-    "predeploy": "vue-cli-service build"
+    "predeploy": "vue-cli-service build",
+    "build:maui": "MAUI=true vue-cli-service build",
+    "copy:maui": "cp -r dist/* ../../MasTacos.Maui/wwwroot/",
+    "maui": "npm run build:maui && npm run copy:maui"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.7.2",
