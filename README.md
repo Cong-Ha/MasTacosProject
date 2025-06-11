@@ -4,3 +4,5 @@
 ### Docker for containerization of webapi and database with MySql
 ## VueJs front-end
 ### utilizing vue cli for vue features and build
+## Maui Blazor
+### Maui is used as a wrapper for our VueJs web application for a mobile application experience
